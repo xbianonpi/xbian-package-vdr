@@ -1,0 +1,9 @@
+
+(
+    FILE="debian/changelog"
+    ver="$(grep "#define.*VDRVERSION" config.h | awk '{print $3}'|tr -d '"; ')"
+    echo "Setting version to $ver"
+    sed -i "0,/(.*)/s//($ver~xbian)/" $FILE; \
+    sed -i "0,/trusty/s//$config_platform-$(lsb_release -sc)/" $FILE; \
+    sed -i "0,/rpi-jessie/s//$config_platform-$(lsb_release -sc)/" $FILE;
+)

@@ -1,0 +1,16 @@
+(
+    PLUGIN="dynamite"
+
+    FILE="$XBIANARCHDIR/working/debian/vdr-plugin-$PLUGIN.changelog"
+    FOLDER="$XBIANARCHDIR/working/PLUGINS/src/$PLUGIN"
+    cd $FOLDER
+
+    git=$(git describe --always 2>/dev/null)
+    ver="$(grep VERSION dynamite.c | awk -F'=' '{print $2}' | awk -F'~' '{print $1}'|tr -d '"; ')-${git##*-}"
+    echo "Setting version to $ver"
+
+    sed -i "0,/vdr-plugin-$PLUGIN/s//vdr/" $FILE; \
+    sed -i "0,/(.*)/s//($ver~xbian)/" $FILE; \
+    sed -i "0,/trusty/s//$config_platform-$(lsb_release -sc)/" $FILE; \
+    sed -i "0,/rpi-jessie/s//$config_platform-$(lsb_release -sc)/" $FILE;
+)

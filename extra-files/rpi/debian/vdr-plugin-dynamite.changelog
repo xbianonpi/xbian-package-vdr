@@ -1,0 +1,6 @@
+vdr (0.2.1~xbian) rpi-jessie; urgency=medium
+
+  * Autobuild - b'c79b3c223f47e4db0b4874a19c80b28a4cadb31b\n'
+    git://github.com/yavdr/vdr-plugin-dynamite.git
+
+ -- yaVDR Release-Team <release@yavdr.org>  Thu, 28 May 2015 02:07:43 +0200

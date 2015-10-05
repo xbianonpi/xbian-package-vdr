@@ -1,0 +1,4 @@
+cd PLUGINS/src
+
+[ -e vnsiserver ] && rm -rf vnsiserver
+git clone https://github.com/FernetMenta/vdr-plugin-vnsiserver vnsiserver

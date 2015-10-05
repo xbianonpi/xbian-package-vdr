@@ -1,0 +1,3 @@
+usr/lib/vdr/plugins/libsc-*cardclient*.so.*
+
+debian/cardclient.conf   etc/vdr/plugins/sc/

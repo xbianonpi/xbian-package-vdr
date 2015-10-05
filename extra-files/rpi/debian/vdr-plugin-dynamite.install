@@ -1,0 +1,5 @@
+usr/lib/vdr/plugins/libvdr-dynamite.so.*
+
+usr/share/locale/*/*/vdr-dynamite.*
+
+debian/dynamite.conf etc/vdr/conf.d
