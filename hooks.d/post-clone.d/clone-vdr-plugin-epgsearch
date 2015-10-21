@@ -1,0 +1,4 @@
+cd PLUGINS/src
+
+[ -e epgsearch ] && rm -rf epgsearch
+git clone http://projects.vdr-developer.org/git/vdr-plugin-epgsearch.git epgsearch

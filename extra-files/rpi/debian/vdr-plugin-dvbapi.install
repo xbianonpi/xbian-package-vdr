@@ -2,4 +2,4 @@ usr/lib/vdr/plugins/libvdr-dvbapi.so.*
 
 usr/share/locale/*/*/vdr-dvbapi.*
 
-debian/dvbapi.conf etc/vdr/conf.d
+debian/conf/dvbapi.conf etc/vdr/conf.avail/

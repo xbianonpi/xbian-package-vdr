@@ -1,0 +1,6 @@
+usr/lib/vdr/plugins/libvdr-streamdev-server.so.*
+usr/share/locale/*/LC_MESSAGES/vdr-streamdev-server.mo
+
+PLUGINS/src/streamdev/streamdev-server/streamdevhosts.conf  etc/vdr/plugins/
+
+debian/conf/streamdev-server.conf etc/vdr/conf.avail/

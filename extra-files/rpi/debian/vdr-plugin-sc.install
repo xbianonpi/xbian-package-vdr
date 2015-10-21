@@ -2,4 +2,4 @@ usr/lib/vdr/plugins/libvdr-sc.so.*
 
 usr/share/locale/*/*/vdr-sc.*
 
-debian/sc.conf etc/vdr/conf.d
+debian/conf/sc.conf etc/vdr/conf.avail/

@@ -1,0 +1,7 @@
+usr/lib/vdr/plugins/libvdr-live.so.*
+
+PLUGINS/src/live/live/* usr/share/vdr-plugin-live/
+
+usr/share/locale/*/*/vdr-live.*
+
+debian/conf/live.conf etc/vdr/conf.avail/

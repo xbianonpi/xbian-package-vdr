@@ -1,0 +1,24 @@
+--- a/PLUGINS/src/live/Makefile
++++ b/PLUGINS/src/live/Makefile
+@@ -22,7 +22,8 @@
+ ### This variable is overriden in pages/Makefile because we don't want the
+ ### extra warnings in the tntnet generated files. So if you change here
+ ### something be sure to check pages/Makefile too.
+-CXXFLAGS ?= -fPIC -O2 -Wall
++#CXXFLAGS ?= -fPIC -O2 -Wall
++override CXXFLAGS += $(shell pkg-config --cflags vdr)
+ LDFLAGS	 ?= -fPIC -g
+ 
+ ### Check for libpcre c++ wrapper
+--- a/PLUGINS/src/live/pages/Makefile
++++ b/PLUGINS/src/live/pages/Makefile
+@@ -13,7 +13,8 @@
+ AR       ?= ar
+ ECPPC    ?= ecppc
+ 
+-CXXFLAGS ?= -O2 -Woverloaded-virtual -Wall -fPIC
++#CXXFLAGS ?= -O2 -Woverloaded-virtual -Wall -fPIC
++override CXXFLAGS += $(shell pkg-config --cflags vdr)
+ DEFINES  ?= -DPLUGIN_NAME_I18N='"$(PLUGIN)"' -DTNTVERSION=$(TNTVERSION) -DCXXTOOLVER=$(CXXTOOLVER)
+ 
+ ### The directory environment:

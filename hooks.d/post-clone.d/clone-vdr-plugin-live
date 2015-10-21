@@ -1,0 +1,4 @@
+cd PLUGINS/src
+
+[ -e live ] && rm -rf live
+git clone http://projects.vdr-developer.org/git/vdr-plugin-live.git/ live

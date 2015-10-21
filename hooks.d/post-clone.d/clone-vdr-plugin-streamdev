@@ -1,0 +1,4 @@
+cd PLUGINS/src
+
+[ -e streamdev ] && rm -rf streamdev
+git clone http://projects.vdr-developer.org/git/vdr-plugin-streamdev.git/ streamdev
