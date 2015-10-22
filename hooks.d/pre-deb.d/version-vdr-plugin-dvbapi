@@ -5,9 +5,8 @@
     FOLDER="$XBIANARCHDIR/working/PLUGINS/src/$PLUGIN"
     cd $FOLDER
 
-    ver="$(grep "#define.* VERSION" DVBAPI.h | awk '{print $3}'|tr -d '"; ')-$(git describe --always 2>/dev/null)"
+    ver="$(grep "#define.* VERSION" DVBAPI.h | awk '{print $3}'|tr -d '"; ')-git.$(git show --pretty=format:"%cd" --date=short --quiet | tr -d '-' 2>/dev/null)"
     echo "Setting version to $ver"
-    echo "File=$FILE"
 
     sed -i "0,/vdr-plugin-$PLUGIN/s//vdr/" "$FILE"
     sed -i "0,/(.*)/s//($ver~xbian)/" $FILE
