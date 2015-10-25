@@ -1,1 +1,1 @@
-etc/vdr/plugins/streamdevhosts.conf var/lib/vdr/plugins/streamdev-server/streamdevhosts.conf
+etc/vdr/plugins/streamdev-server/streamdevhosts.conf var/lib/vdr/plugins/streamdev-server/streamdevhosts.conf

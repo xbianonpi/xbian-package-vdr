@@ -1,0 +1,134 @@
+diff --git a/PLUGINS/src/epgsearch/doc-src/de/epgsearch.1.txt b/PLUGINS/src/epgsearch/doc-src/de/epgsearch.1.txt
+index 5f725a7..2e20d0e 100644
+--- a/PLUGINS/src/epgsearch/doc-src/de/epgsearch.1.txt
++++ b/PLUGINS/src/epgsearch/doc-src/de/epgsearch.1.txt
+@@ -85,10 +85,10 @@ OSD. Kann f
+ 
+ =item -m file,  --mailcmd=file
+ 
+-das externe Kommando für den Emailversand. Als Standard wird 'sendEmail.pl'
++das externe Kommando für den Emailversand. Als Standard wird 'sendEmail'
+ benutzt. Wenn ein abweichendes Kommando oder Skript verwendet wird, muss
+ sichergestellt sein, dass das gleiche Paramter-Interface verwendet wird, wie
+-bei sendEmail.pl.
++bei sendEmail.
+ 
+ =back
+ 
+@@ -784,7 +784,7 @@ ber
+ 
+ =head3 1.4.7 Email-Benachrichtigungen
+ 
+-(Bitte sicherstellen, dass 'sendEmail.pl' im Pfad der ausführbaren Dateien
++(Bitte sicherstellen, dass 'sendEmail' im Pfad der ausführbaren Dateien
+ liegt und 'epgsearchupdmail.templ' und 'epgsearchconflmail.templ' im
+ Konfig-Verzeichnis von epgsearch existieren!)
+ 
+@@ -828,7 +828,7 @@ die gleiche Adresse f
+ 
+ Zur Auswahl stehen
+ 
+-  - sendEmail.pl: ein einfaches Skript, das auch auf Systemen ohne
++  - sendEmail: ein einfaches Skript, das auch auf Systemen ohne
+     konfigurierten Mailserver den Versand von Emails erlaubt. Das Skript wird
+     mit epgsearch ausgeliefert und sollte im $PATH liegen.
+   - sendmail: setzt ein korrekt aufgesetzes Mailsystem voraus.
+@@ -863,7 +863,7 @@ Zugriff auf VDR-Konfigurations-Dateien m
+ =back
+ 
+ Nach Angabe der Email-Konto-Daten bitte mit 'Test' prüfen, ob alles
+-funktioniert. Wenn mit 'sendEmail.pl' gearbeitet wird, sollte am Ende der
++funktioniert. Wenn mit 'sendEmail' gearbeitet wird, sollte am Ende der
+ Test-Ausgabe etwas wie 'Email sent successfully' auftauchen. Die Testfunktion
+ gibt es bei der Methode 'sendmail' leider nicht.
+ 
+diff --git a/PLUGINS/src/epgsearch/doc-src/en/epgsearch.1.txt b/PLUGINS/src/epgsearch/doc-src/en/epgsearch.1.txt
+index 659f4b9..73e328c 100644
+--- a/PLUGINS/src/epgsearch/doc-src/en/epgsearch.1.txt
++++ b/PLUGINS/src/epgsearch/doc-src/en/epgsearch.1.txt
+@@ -85,8 +85,8 @@ customized menu layouts.
+ =item -m file,  --mailcmd=file
+ 
+ the external command to be used for mail delivery. The default uses
+-'sendEmail.pl'. If you are using a different command or script make sure that
+-it has the same parameter interface as sendEmail.pl.
++'sendEmail'. If you are using a different command or script make sure that
++it has the same parameter interface as sendEmail.
+ 
+ =back
+ 
+@@ -759,7 +759,7 @@ Also have a look at C<epgsearch(4)>, section 'Working with the timer conflict me
+ 
+ =head3 1.4.7 Email notification
+ 
+-Please make sure, that 'sendEmail.pl' is in the path of your executables and
++Please make sure, that 'sendEmail' is in the path of your executables and
+ that the 'epgsearchupdmail.templ' and 'epgsearchconflmail.templ' exists in
+ epgsearch's configurations directory!
+ 
+@@ -802,7 +802,7 @@ allow the same address for sender and recipient.
+ 
+ You can choose between:
+ 
+-  - sendEmail.pl: this is a simply script shipped with epgsearch, that allows
++  - sendEmail: this is a simply script shipped with epgsearch, that allows
+     mail delivery also on systems without a configured mail server. Please
+     copy it to your $PATH
+   - sendmail: requires a properly configured mail system
+@@ -833,7 +833,7 @@ authorized persons.
+ =back
+ 
+ After the account setup, check if it works with 'Test'. If you are
+-using 'sendEmail.pl' for mail delivery, there should be something like 'Email
++using 'sendEmail' for mail delivery, there should be something like 'Email
+ sent successfully' at the end of the test output. The test function is not
+ available for method 'sendmail'.
+ 
+diff --git a/PLUGINS/src/epgsearch/doc-src/en/epgsearch.4.txt b/PLUGINS/src/epgsearch/doc-src/en/epgsearch.4.txt
+index 8a294ad..7f74ade 100644
+--- a/PLUGINS/src/epgsearch/doc-src/en/epgsearch.4.txt
++++ b/PLUGINS/src/epgsearch/doc-src/en/epgsearch.4.txt
+@@ -794,7 +794,7 @@ See C<epgsearchcats.conf(5)>.
+ 
+ If you want to get email notifications about timers added/modified/removed by
+ the search timer thread or about timer conflicts, first copy the script
+-'sendEmail.pl' to the place where your executables are (e.g. /usr/local/bin)
++'sendEmail' to the place where your executables are (e.g. /usr/local/bin)
+ and then configure your email account in the setup. Press 'Test' to check if
+ it works. There should be something like 'Email successfully sent' at the end
+ of the output.
+diff --git a/PLUGINS/src/epgsearch/epgsearchsetup.c b/PLUGINS/src/epgsearch/epgsearchsetup.c
+index 72ac690..d917bee 100644
+--- a/PLUGINS/src/epgsearch/epgsearchsetup.c
++++ b/PLUGINS/src/epgsearch/epgsearchsetup.c
+@@ -126,7 +126,7 @@ cMenuEPGSearchSetup::cMenuEPGSearchSetup(void)
+     FavoritesMenuMode[3] = tr("before 'next'");
+ 
+     MailMethod[0] = "sendmail";
+-    MailMethod[1] = "sendEmail.pl";
++    MailMethod[1] = "sendEmail";
+ 
+     Setup();
+ }
+diff --git a/PLUGINS/src/epgsearch/mail.c b/PLUGINS/src/epgsearch/mail.c
+index 65c9caa..515305d 100644
+--- a/PLUGINS/src/epgsearch/mail.c
++++ b/PLUGINS/src/epgsearch/mail.c
+@@ -40,7 +40,7 @@ The project's page is at http://winni.vdr-developer.org/epgsearch
+ extern bool isUTF8;
+ using namespace std;
+ 
+-string cMailNotifier::MailCmd = "sendEmail.pl";
++string cMailNotifier::MailCmd = "sendEmail";
+ 
+ // ----------------------
+ // cMailTimerNotification
+@@ -246,7 +246,7 @@ bool cMailNotifier::ExecuteMailScript(string ScriptArgs)
+ {
+     string mailCmd = MailCmd;
+     LogFile.Log(3, "starting mail script: %s with parameters: %s", mailCmd.c_str(), ScriptArgs.c_str());
+-    if (mailCmd == "sendEmail.pl") // beautify output for standard script
++    if (mailCmd == "sendEmail") // beautify output for standard script
+ 	ScriptArgs += " | cut -d\" \" -f 6-";
+ 
+     cCommand cmd;

@@ -26,6 +26,18 @@ VDRPRG=/usr/bin/vdr
 test -x $DAEMON || exit 0
 test -x $VDRPRG || exit 0
 
+# Don't do anything if upstart is used
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+if [ $link = $base ] && [ -x /sbin/initctl ] ; then
+    case "$1" in
+        start|stop|restart|force-reload|status) CMD=$1;;
+        *) CMD="start|stop|restart|reload|status" ;;
+    esac
+    echo "Your system uses upstart, please use  \"$CMD $NAME\" instead"
+fi
+test -x /sbin/initctl && exit 0
+
 . /usr/lib/vdr/config-loader.sh
 
 . /usr/lib/vdr/commands-loader.sh

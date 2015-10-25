@@ -1,0 +1,9 @@
+cd PLUGINS/src
+
+FOLDER="wirbelscan"
+[ -e $FOLDER ] && rm -rf FOLDER
+
+mkdir $FOLDER
+wget http://wirbel.htpc-forum.de/wirbelscan/vdr-wirbelscan-0.0.9.tgz
+tar xf vdr-wirbelscan-0.0.9.tgz -C $FOLDER/ --strip-components 1
+rm -f vdr-wirbelscan-0.0.9.tgz

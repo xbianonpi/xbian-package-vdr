@@ -21,4 +21,7 @@ var/lib/vdr/plugins/epgsearch/epgsearchcats.conf-epgdata         usr/share/doc/v
 
 usr/share/locale/*/*/vdr-epgsearch.*
 
-debian/conf/epgsearch.conf etc/vdr/conf.avail/
+debian/conf/epgsearch.conf         etc/vdr/conf.avail/
+debian/conf/conflictcheckonly.conf etc/vdr/conf.avail/
+debian/conf/epgsearchonly.conf     etc/vdr/conf.avail/
+debian/conf/quickepgsearch.conf    etc/vdr/conf.avail/

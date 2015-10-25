@@ -1,0 +1,15 @@
+(
+    PLUGIN="wirbelscan"
+
+    FILE="$XBIANARCHDIR/working/debian/vdr-plugin-$PLUGIN.changelog"
+    FOLDER="$XBIANARCHDIR/working/PLUGINS/src/$PLUGIN"
+    cd $FOLDER
+
+    ver="$(grep 'static const char \*VERSION *=' $PLUGIN.c | awk '{ print $6 }' | sed -e 's/[";]//g')-$(ls --full-time $PLUGIN.c | awk '{ print $6 }' | tr -d '-' 2>/dev/null)"
+    echo "Setting version to $ver"
+
+    sed -i "0,/vdr-plugin-$PLUGIN/s//vdr/" $FILE; \
+    sed -i "0,/(.*)/s//($ver~xbian)/" $FILE; \
+    sed -i "0,/trusty/s//$config_platform-$(lsb_release -sc)/" $FILE; \
+    sed -i "0,/rpi-jessie/s//$config_platform-$(lsb_release -sc)/" $FILE;
+)

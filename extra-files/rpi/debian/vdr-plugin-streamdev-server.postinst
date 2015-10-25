@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for vdr-plugin-vnsiserver
+# postinst script for vdr-plugin-streamdev-server
 #
 # see: dh_installdeb(1)
 
@@ -20,8 +20,8 @@ set -e
 
 case "$1" in
     configure)
-        chown -R vdr:vdr /var/lib/vdr/plugins/vnsiserver
-        ! [ -e /etc/vdr/conf.d/vnsiserver.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/vnsiserver.conf || :
+        chown -R vdr:vdr /var/lib/vdr/plugins/streamdev-server
+        #! [ -e /etc/vdr/conf.d/streamdev-server.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/streamdev-server.conf || :
 
     ;;
 

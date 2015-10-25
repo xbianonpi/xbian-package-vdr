@@ -325,3 +325,33 @@ Description: debugging symbols for vdr-plugin-live
  .
  This package contains only the debugging symbols for vdr-plugin-live
 
+Package: vdr-plugin-wirbelscan
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}
+Description: Channelscan plugin for VDR
+ This plugin allows you to scan for new channels. DVB-T and DVB-C are supported
+ as well as DVB-S and pvrinput/ptv (analog) scan.
+
+Package: vdr-plugin-wirbelscan-dev
+Architecture: all
+Depends: ${misc:Depends}, debhelper, linux-libc-dev (>= 3.0)
+Suggests: dh-make, make
+Description: Channelscan plugin for VDR
+ This plugin allows you to scan for new channels. DVB-T and DVB-C are supported
+ as well as DVB-S and pvrinput/ptv (analog) scan.
+ .
+ This package contains the header files of vdr-plugin-wirbelscan.
+ You need this package to be able to build vdr-plugins that depends on
+ the plugin wirbelscan!
+
+Package: vdr-plugin-wirbelscan-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, vdr-plugin-wirbelscan (= ${binary:Version}), gdb
+Description: Debug symbols for the Channelscan plugin for VDR
+ This plugin allows you to scan for new channels. DVB-T and DVB-C are supported
+ as well as DVB-S and pvrinput/ptv (analog) scan.
+ .
+ This package contains the debugging symbols for wirbelscan plugin.
+
