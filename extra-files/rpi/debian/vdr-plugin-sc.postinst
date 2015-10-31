@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for vdr-plugin-vnsiserver
+# postinst script for vdr-plugin-sc[-*]
 #
 # see: dh_installdeb(1)
 
@@ -20,8 +20,9 @@ set -e
 
 case "$1" in
     configure)
-        chown -R vdr:vdr /var/lib/vdr/plugins/dvbapi
-        [ -e /etc/vdr/conf.d/dvbapi.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/dvbapi.conf || :
+        chown -R vdr:vdr /var/lib/vdr/plugins/sc
+        [ -e /etc/vdr/conf.d/sc.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/sc.conf || :
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -39,3 +40,4 @@ esac
 #DEBHELPER#
 
 exit 0
+

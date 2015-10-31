@@ -4,4 +4,4 @@
 #
 
 # Change to 1 to enable vdr's init-script
-ENABLED=0
+ENABLED=1

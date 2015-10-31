@@ -50,18 +50,19 @@ override_dh_installinit:
 	dh_installinit --no-start --no-restart-on-upgrade
 
 override_dh_strip:
-	dh_strip -p vdr                         --dbg-package=vdr-dbg
-	dh_strip -p vdr-plugin-dvbsddevice      --dbg-package=vdr-plugin-dvbsddevice-dbg
-	dh_strip -p vdr-plugin-dvbhddevice      --dbg-package=vdr-plugin-dvbhddevice-dbg
-	dh_strip -p vdr-plugin-dynamite         --dbg-package=vdr-plugin-dynamite-dbg
-	dh_strip -p vdr-plugin-vnsiserver       --dbg-package=vdr-plugin-vnsiserver-dbg
-	dh_strip -p vdr-plugin-sc               --dbg-package=vdr-plugin-sc-dbg
-	dh_strip -p vdr-plugin-dvbapi           --dbg-package=vdr-plugin-dvbapi-dbg
-	dh_strip -p vdr-plugin-epgsearch        --dbg-package=vdr-plugin-epgsearch-dbg
-	dh_strip -p vdr-plugin-streamdev-client --dbg-package=vdr-plugin-streamdev-client-dbg
-	dh_strip -p vdr-plugin-streamdev-server --dbg-package=vdr-plugin-streamdev-server-dbg
-	dh_strip -p vdr-plugin-live             --dbg-package=vdr-plugin-live-dbg
-	dh_strip -p vdr-plugin-wirbelscan       --dbg-package=vdr-plugin-wirbelscan-dbg
+	dh_strip -p vdr                          --dbg-package=vdr-dbg
+	dh_strip -p vdr-plugin-dvbsddevice       --dbg-package=vdr-plugin-dvbsddevice-dbg
+	dh_strip -p vdr-plugin-dvbhddevice       --dbg-package=vdr-plugin-dvbhddevice-dbg
+	dh_strip -p vdr-plugin-dynamite          --dbg-package=vdr-plugin-dynamite-dbg
+	dh_strip -p vdr-plugin-vnsiserver        --dbg-package=vdr-plugin-vnsiserver-dbg
+	dh_strip -p vdr-plugin-sc                --dbg-package=vdr-plugin-sc-dbg
+	dh_strip -p vdr-plugin-dvbapi            --dbg-package=vdr-plugin-dvbapi-dbg
+	dh_strip -p vdr-plugin-epgsearch         --dbg-package=vdr-plugin-epgsearch-dbg
+	dh_strip -p vdr-plugin-streamdev-client  --dbg-package=vdr-plugin-streamdev-client-dbg
+	dh_strip -p vdr-plugin-streamdev-server  --dbg-package=vdr-plugin-streamdev-server-dbg
+	dh_strip -p vdr-plugin-live              --dbg-package=vdr-plugin-live-dbg
+	dh_strip -p vdr-plugin-wirbelscan        --dbg-package=vdr-plugin-wirbelscan-dbg
+	dh_strip -p vdr-plugin-wirbelscancontrol --dbg-package=vdr-plugin-wirbelscancontrol-dbg
 	dh_strip
 
 override_dh_installchangelogs:
@@ -77,6 +78,7 @@ override_dh_installchangelogs:
 	dh_installchangelogs -pvdr-plugin-streamdev-server PLUGINS/src/streamdev/HISTORY
 	dh_installchangelogs -pvdr-plugin-live PLUGINS/src/live/HISTORY
 	dh_installchangelogs -pvdr-plugin-wirbelscan PLUGINS/src/wirbelscan/HISTORY
+	dh_installchangelogs -pvdr-plugin-wirbelscancontrol PLUGINS/src/wirbelscancontrol/HISTORY
 	dh_installchangelogs -pvdr-plugin-examples
 	dh_installchangelogs
 
