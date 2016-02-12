@@ -21,7 +21,7 @@ set -e
 case "$1" in
     configure)
         chown -R vdr:vdr /var/lib/vdr/plugins/sc
-        [ -e /etc/vdr/conf.d/sc.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/sc.conf || :
+        ! [ -e /etc/vdr/conf.d/sc.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/sc.conf || :
 
     ;;
 

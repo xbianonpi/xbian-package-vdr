@@ -21,7 +21,7 @@ set -e
 case "$1" in
     configure)
         chown -R vdr:vdr /var/lib/vdr/plugins/dvbapi
-        [ -e /etc/vdr/conf.d/dvbapi.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/dvbapi.conf || :
+        ! [ -e /etc/vdr/conf.d/dvbapi.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/dvbapi.conf || :
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

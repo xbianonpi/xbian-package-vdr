@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        [ -e /etc/vdr/conf.d/dynamite.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/dynamite.conf || :
+        ! [ -e /etc/vdr/conf.d/dynamite.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/dynamite.conf || :
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

@@ -21,7 +21,7 @@ set -e
 case "$1" in
     configure)
         chown -R vdr:vdr /var/lib/vdr/plugins/streamdev-server
-        [ -e /etc/vdr/conf.d/streamdev-server.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/streamdev-server.conf || :
+        ! [ -e /etc/vdr/conf.d/streamdev-server.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/streamdev-server.conf || :
 
     ;;
 

@@ -21,7 +21,7 @@ set -e
 case "$1" in
     configure)
         chown -R vdr:vdr /var/lib/vdr/plugins/live
-        [ -e /etc/vdr/conf.d/live.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/live.conf || :
+        ! [ -e /etc/vdr/conf.d/live.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/live.conf || :
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
