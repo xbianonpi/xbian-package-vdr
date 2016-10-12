@@ -1,0 +1,279 @@
+diff --git a/PLUGINS/src/epgsearch/menu_commands.c b/PLUGINS/src/epgsearch/menu_commands.c
+index 89b3baa..f3194e9 100644
+--- a/PLUGINS/src/epgsearch/menu_commands.c
++++ b/PLUGINS/src/epgsearch/menu_commands.c
+@@ -40,6 +40,10 @@ The project's page is at http://winni.vdr-developer.org/epgsearch
+ #include <vdr/menu.h>
+ #include "menu_deftimercheckmethod.h"
+ 
++#if VDRVERSNUM > 20300
++extern bool HandleRemoteModifications(cTimer* NewTimer, cTimer* OldTimer);
++#endif
++
+ // --- cMenuSearchCommands ---------------------------------------------------------
+ 
+ cMenuSearchCommands::cMenuSearchCommands(const char *Title, const cEvent* Event, bool DirectCall, cSearchExt* Search)
+@@ -183,10 +187,21 @@ eOSState cMenuSearchCommands::Record(void)
+ #endif
+ 
+       SetAux(timer, fullaux);
++#if VDRVERSNUM > 20300
++      if (*Setup.SVDRPDefaultHost)
++         timer->SetRemote(Setup.SVDRPDefaultHost);
++#endif
+       vdrtimers->Add(timer);
+       timer->Matches();
+       vdrtimers->SetModified();
++#if VDRVERSNUM > 20300
++      if (!HandleRemoteModifications(timer,NULL)) {
++         vdrtimers->Del(timer);
++         delete timer;
++      }
++#else
+       LogFile.iSysLog("timer %s added (active)", *timer->ToDescr());
++#endif
+       return osBack;
+    }
+    return osContinue;
+diff --git a/PLUGINS/src/epgsearch/menu_main.c b/PLUGINS/src/epgsearch/menu_main.c
+index 8aec2b1..c528918 100644
+--- a/PLUGINS/src/epgsearch/menu_main.c
++++ b/PLUGINS/src/epgsearch/menu_main.c
+@@ -42,6 +42,9 @@ The project's page is at http://winni.vdr-developer.org/epgsearch
+ int toggleKeys=0;
+ int exitToMainMenu = 0;
+ extern int gl_InfoConflict;
++#if VDRVERSNUM > 20300
++extern bool HandleRemoteModifications(cTimer* NewTimer, cTimer* OldTimer);
++#endif
+ 
+ int cMenuSearchMain::forceMenu = 0; // 1 = now, 2 = schedule, 3 = summary
+ 
+@@ -191,8 +194,8 @@ eOSState cMenuSearchMain::Record(void)
+   if (item) {
+ #if VDRVERSNUM > 20300
+       {
+-      LOCK_TIMERS_WRITE;
+-      vdrtimers = Timers;
++      LOCK_TIMERS_READ;
++      vdrtimers = (cTimers *)Timers;
+       }
+ #else
+       vdrtimers = &Timers;
+@@ -214,8 +217,8 @@ eOSState cMenuSearchMain::Record(void)
+      PrepareTimerFile(item->event, timer);
+ #if VDRVERSNUM > 20300
+      {
+-     LOCK_TIMERS_WRITE;
+-     vdrtimers = Timers;
++     LOCK_TIMERS_READ;
++     vdrtimers = (cTimers *)Timers;
+      }
+ #endif
+      cTimer *t = vdrtimers->GetTimer(timer);
+@@ -256,10 +259,12 @@ eOSState cMenuSearchMain::Record(void)
+ 
+ 	 SetAux(timer, fullaux);
+ #if VDRVERSNUM > 20300
++         if (*Setup.SVDRPDefaultHost)
++                      timer->SetRemote(Setup.SVDRPDefaultHost);
+          {
+             LOCK_TIMERS_WRITE;
+-	    Timers->Add(timer); // cannot use const vdrtimers
+-            // implicit SetModified
++            vdrtimers = Timers;
++	    vdrtimers->Add(timer); // implicit SetModified
+          }
+ #else
+ 	 vdrtimers->Add(timer);
+@@ -268,6 +273,11 @@ eOSState cMenuSearchMain::Record(void)
+ 	 timer->Matches();
+ #if VDRVERSNUM < 20300
+ 	 vdrtimers->SetModified();
++#else
++         if (!HandleRemoteModifications(timer,NULL)) {
++            vdrtimers->Del(timer);
++            delete timer;
++         }
+ #endif
+ 	 LogFile.iSysLog("timer %s added (active)", *timer->ToDescr());
+ 
+diff --git a/PLUGINS/src/epgsearch/menu_myedittimer.c b/PLUGINS/src/epgsearch/menu_myedittimer.c
+index d0f8497..563b3b4 100644
+--- a/PLUGINS/src/epgsearch/menu_myedittimer.c
++++ b/PLUGINS/src/epgsearch/menu_myedittimer.c
+@@ -36,6 +36,9 @@ The project's page is at http://winni.vdr-developer.org/epgsearch
+ #include <math.h>
+ 
+ const char *cMenuMyEditTimer::CheckModes[3];
++#if VDRVERSNUM > 20300
++extern bool HandleRemoteModifications(cTimer* NewTimer, cTimer* OldTimer);
++#endif
+ 
+ cMenuMyEditTimer::cMenuMyEditTimer(cTimer *Timer, bool New, const cEvent* Event, const cChannel* forcechannel)
+ :cOsdMenu(trVDR("Edit timer"), 14)
+@@ -452,6 +455,8 @@ eOSState cMenuMyEditTimer::ProcessKey(eKeys Key)
+                     }
+                     Timers->SetExplicitModify();
+                     cTimers* vdrtimers = Timers;
++                    if (*Setup.SVDRPDefaultHost)
++                       timer->SetRemote(Setup.SVDRPDefaultHost);
+ #else
+                     cTimers* vdrtimers = &Timers;
+ #endif
+@@ -459,6 +464,10 @@ eOSState cMenuMyEditTimer::ProcessKey(eKeys Key)
+                       vdrtimers->Add(timer);
+ #if VDRVERSNUM > 20300
+                       vdrtimers->SetModified();
++                      if (!HandleRemoteModifications(timer,NULL)) {
++                         vdrtimers->Del(timer);
++                         delete timer;
++                      }
+                     }
+                     }
+                     LOCK_SCHEDULES_READ;
+diff --git a/PLUGINS/src/epgsearch/menu_searchresults.c b/PLUGINS/src/epgsearch/menu_searchresults.c
+index e761422..6635d43 100644
+--- a/PLUGINS/src/epgsearch/menu_searchresults.c
++++ b/PLUGINS/src/epgsearch/menu_searchresults.c
+@@ -44,6 +44,9 @@ The project's page is at http://winni.vdr-developer.org/epgsearch
+ const char* ButtonBlue[3] = {NULL, NULL, NULL};
+ extern int gl_InfoConflict;
+ extern bool isUTF8;
++#if VDRVERSNUM > 20300
++extern bool HandleRemoteModifications(cTimer* NewTimer, cTimer* OldTimer);
++#endif
+ 
+ static int CompareRecording(const void *p1, const void *p2)
+ {
+@@ -317,11 +320,22 @@ eOSState cMenuSearchResults::Record(void)
+ #endif
+ 
+          SetAux(timer, fullaux);
++#if VDRVERSNUM > 20300
++         if (*Setup.SVDRPDefaultHost)
++            timer->SetRemote(Setup.SVDRPDefaultHost);
++#endif
+          vdrtimers->Add(timer);
+ 	 gl_timerStatusMonitor->SetConflictCheckAdvised();
+          timer->Matches();
+          vdrtimers->SetModified();
++#if VDRVERSNUM > 20300
++         if (!HandleRemoteModifications(timer,NULL)) {
++            vdrtimers->Del(timer);
++            delete timer;
++         }
++#else
+          LogFile.iSysLog("timer %s added (active)", *timer->ToDescr());
++#endif
+ 
+          if (HasSubMenu())
+             CloseSubMenu();
+diff --git a/PLUGINS/src/epgsearch/menu_whatson.c b/PLUGINS/src/epgsearch/menu_whatson.c
+index 22ce378..862084d 100644
+--- a/PLUGINS/src/epgsearch/menu_whatson.c
++++ b/PLUGINS/src/epgsearch/menu_whatson.c
+@@ -52,6 +52,9 @@ The project's page is at http://winni.vdr-developer.org/epgsearch
+ 
+ extern int exitToMainMenu;
+ extern bool isUTF8;
++#if VDRVERSNUM > 20300
++extern bool HandleRemoteModifications(cTimer* NewTimer, cTimer* OldTimer);
++#endif
+ int gl_InfoConflict = 0;
+ 
+ // --- cMenuMyScheduleItem ------------------------------------------------------
+@@ -660,11 +663,22 @@ eOSState cMenuWhatsOnSearch::Record(void)
+          fullaux = UpdateAuxValue(fullaux, "pin-plugin", aux);
+ #endif
+          SetAux(timer, fullaux);
++#if VDRVERSNUM > 20300
++         if (*Setup.SVDRPDefaultHost)
++            timer->SetRemote(Setup.SVDRPDefaultHost);
++#endif
+          vdrtimers->Add(timer);
+ 	 gl_timerStatusMonitor->SetConflictCheckAdvised();
+          timer->Matches();
+          vdrtimers->SetModified();
++#if VDRVERSNUM > 20300
++         if (!HandleRemoteModifications(timer,NULL)) {
++            vdrtimers->Del(timer);
++            delete timer;
++         }
++#else
+          LogFile.iSysLog("timer %s added (active)", *timer->ToDescr());
++#endif
+ 
+          if (HasSubMenu())
+             CloseSubMenu();
+diff --git a/PLUGINS/src/epgsearch/searchtimer_thread.c b/PLUGINS/src/epgsearch/searchtimer_thread.c
+index 8e58cfd..6039c54 100644
+--- a/PLUGINS/src/epgsearch/searchtimer_thread.c
++++ b/PLUGINS/src/epgsearch/searchtimer_thread.c
+@@ -52,6 +52,9 @@ The project's page is at http://winni.vdr-developer.org/epgsearch
+ #define DAYBUFFERSIZE 32
+ 
+ extern int updateForced;
++#if VDRVERSNUM > 20300
++extern bool HandleRemoteModifications(cTimer* NewTimer, cTimer* OldTimer);
++#endif
+ 
+ cSearchTimerThread *cSearchTimerThread::m_Instance = NULL;
+ cSearchResults cSearchTimerThread::announceList;
+@@ -704,7 +707,7 @@ char* cSearchTimerThread::SummaryExtended(cSearchExt* searchExt, const cTimer* T
+    return tmpSummary;
+ }
+ 
+-bool cSearchTimerThread::AddModTimer(const cTimer* Timer, int index, cSearchExt* searchExt, const cEvent* pEvent, int Prio, int Lifetime, char* Summary, uint timerMod)
++bool cSearchTimerThread::AddModTimer(cTimer* Timer, int index, cSearchExt* searchExt, const cEvent* pEvent, int Prio, int Lifetime, char* Summary, uint timerMod)
+ {
+    char *cmdbuf = NULL;
+ 
+@@ -716,6 +719,7 @@ bool cSearchTimerThread::AddModTimer(const cTimer* Timer, int index, cSearchExt*
+    time_t start = eStart - (searchExt->MarginStart * 60);
+    time_t stop  = eStop + (searchExt->MarginStop * 60);
+    int Flags = Timer->Flags();
++   LogFile.Log(1, "AddModTimer"); //JF
+    if (searchExt->useVPS && pEvent->Vps() && Setup.UseVps)
+    {
+       start = pEvent->Vps();
+@@ -743,7 +747,11 @@ bool cSearchTimerThread::AddModTimer(const cTimer* Timer, int index, cSearchExt*
+    }
+    else
+       tmpSummary = SummaryExtended(searchExt, Timer, pEvent);
+-
++#if VDRVERSNUM > 20300
++   if (*Setup.SVDRPDefaultHost)
++      Timer->SetRemote(Setup.SVDRPDefaultHost);
++   else {
++#endif
+    if (index==0)
+       msprintf(&cmdbuf, "NEWT %d:%d:%s:%s:%s:%d:%d:%s:%s",
+                Flags,
+@@ -770,6 +778,13 @@ bool cSearchTimerThread::AddModTimer(const cTimer* Timer, int index, cSearchExt*
+ 
+    if (!SendViaSVDRP(cmdbuf))
+      return false;
++   LogFile.Log(1, "AddModTimer SVDRP done"); //JF
++#if VDRVERSNUM > 20300
++   }
++   if (!HandleRemoteModifications(Timer,NULL))
++     return false;
++   LogFile.Log(1, "AddModTimer HandleRemoteModifications done"); //JF
++#endif
+ 
+    if (gl_timerStatusMonitor) gl_timerStatusMonitor->SetConflictCheckAdvised();
+ 
+diff --git a/PLUGINS/src/epgsearch/searchtimer_thread.h b/PLUGINS/src/epgsearch/searchtimer_thread.h
+index a5326e4..fe8d6dd 100644
+--- a/PLUGINS/src/epgsearch/searchtimer_thread.h
++++ b/PLUGINS/src/epgsearch/searchtimer_thread.h
+@@ -52,7 +52,7 @@ class cSearchTimerThread: public cThread {
+ 
+  protected:
+     virtual void Action(void);
+-    bool AddModTimer(const cTimer* Timer, int, cSearchExt*, const cEvent*, int Prio, int Lifetime, char* Summary = NULL, uint timerMod = tmNoChange);
++    bool AddModTimer(cTimer* Timer, int, cSearchExt*, const cEvent*, int Prio, int Lifetime, char* Summary = NULL, uint timerMod = tmNoChange);
+     void RemoveTimer(const cTimer* Timer, const cEvent* Event = NULL);
+     void Stop(void);
+     bool NeedUpdate();

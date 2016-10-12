@@ -1,0 +1,277 @@
+diff --git a/PLUGINS/src/epgsearch/epgsearchext.c b/PLUGINS/src/epgsearch/epgsearchext.c
+index fea3f85..9b793f6 100644
+--- a/PLUGINS/src/epgsearch/epgsearchext.c
++++ b/PLUGINS/src/epgsearch/epgsearchext.c
+@@ -1388,6 +1388,7 @@ void cSearchExt::DeleteAllTimers()
+    cList<cTimerObj> DelTimers;
+ #if VDRVERSNUM > 20300
+    LOCK_TIMERS_WRITE;
++   Timers->SetExplicitModify();
+    cTimers *vdrtimers = Timers;
+ #else
+    cTimers *vdrtimers = &Timers;
+@@ -1400,9 +1401,7 @@ void cSearchExt::DeleteAllTimers()
+          cTimer* tiNext = vdrtimers->Next(ti);
+          LogFile.iSysLog("deleting timer %s", *ti->ToDescr());
+          vdrtimers->Del(ti);
+-#if VDRVERSNUM < 20300
+          vdrtimers->SetModified();
+-#endif
+          ti = tiNext;
+       }
+       else
+diff --git a/PLUGINS/src/epgsearch/menu_commands.c b/PLUGINS/src/epgsearch/menu_commands.c
+index 1bc3a21..89b3baa 100644
+--- a/PLUGINS/src/epgsearch/menu_commands.c
++++ b/PLUGINS/src/epgsearch/menu_commands.c
+@@ -130,6 +130,7 @@ eOSState cMenuSearchCommands::Record(void)
+    eTimerMatch timerMatch = tmNone;
+ #if VDRVERSNUM > 20300
+    LOCK_TIMERS_WRITE;
++   Timers->SetExplicitModify();
+    cTimers *vdrtimers = Timers;
+ #else
+    cTimers *vdrtimers = &Timers;
+@@ -184,9 +185,7 @@ eOSState cMenuSearchCommands::Record(void)
+       SetAux(timer, fullaux);
+       vdrtimers->Add(timer);
+       timer->Matches();
+-#if VDRVERSNUM < 20300
+       vdrtimers->SetModified();
+-#endif
+       LogFile.iSysLog("timer %s added (active)", *timer->ToDescr());
+       return osBack;
+    }
+diff --git a/PLUGINS/src/epgsearch/menu_conflictcheck.c b/PLUGINS/src/epgsearch/menu_conflictcheck.c
+index cf10fd0..6f0ab61 100644
+--- a/PLUGINS/src/epgsearch/menu_conflictcheck.c
++++ b/PLUGINS/src/epgsearch/menu_conflictcheck.c
+@@ -275,15 +275,14 @@ eOSState cMenuConflictCheckDetails::ToggleTimer(cConflictCheckTimerObj* TimerObj
+   cTimers *vdrtimers;
+ #if VDRVERSNUM > 20300
+   LOCK_TIMERS_WRITE;
++  Timers->SetExplicitModify();
+   vdrtimers = Timers;
+ #else
+   vdrtimers = &Timers;
+ #endif
+   if (!TimerObj || !TimerObj->OrigTimer(vdrtimers)) return osContinue;
+   TimerObj->OrigTimer(vdrtimers)->OnOff();  // Toggles Timer Flag
+-#if VDRVERSNUM < 20300
+   vdrtimers->SetModified();
+-#endif
+   Update(vdrtimers);
+   Display();
+   return osContinue;
+@@ -303,6 +302,7 @@ eOSState cMenuConflictCheckDetails::DeleteTimer(cConflictCheckTimerObj* TimerObj
+ {
+ #if VDRVERSNUM > 20300
+   LOCK_TIMERS_WRITE;
++  Timers->SetExplicitModify();
+   cTimers *vdrtimers = Timers;
+ #else
+   cTimers *vdrtimers = &Timers;
+@@ -326,9 +326,7 @@ eOSState cMenuConflictCheckDetails::DeleteTimer(cConflictCheckTimerObj* TimerObj
+       LogFile.iSysLog("deleting timer %s", *timer->ToDescr());
+       vdrtimers->Del(timer);
+       cOsdMenu::Del(Current());
+-#if VDRVERSNUM < 20300
+       vdrtimers->SetModified();
+-#endif
+       Display();
+       return osBack;
+     }
+diff --git a/PLUGINS/src/epgsearch/menu_main.c b/PLUGINS/src/epgsearch/menu_main.c
+index 69af173..8aec2b1 100644
+--- a/PLUGINS/src/epgsearch/menu_main.c
++++ b/PLUGINS/src/epgsearch/menu_main.c
+@@ -187,12 +187,15 @@ bool cMenuSearchMain::Update(const cTimers* vdrtimers)
+ eOSState cMenuSearchMain::Record(void)
+ {
+   cMenuMyScheduleItem *item = (cMenuMyScheduleItem *)Get(Current());
++  cTimers *vdrtimers;
+   if (item) {
+ #if VDRVERSNUM > 20300
++      {
+       LOCK_TIMERS_WRITE;
+-      cTimers *vdrtimers = Timers;
++      vdrtimers = Timers;
++      }
+ #else
+-      cTimers *vdrtimers = &Timers;
++      vdrtimers = &Timers;
+ #endif
+       if (item->timerMatch == tmFull)
+       {
+@@ -209,6 +212,12 @@ eOSState cMenuSearchMain::Record(void)
+ 
+      cTimer *timer = new cTimer(item->event);
+      PrepareTimerFile(item->event, timer);
++#if VDRVERSNUM > 20300
++     {
++     LOCK_TIMERS_WRITE;
++     vdrtimers = Timers;
++     }
++#endif
+      cTimer *t = vdrtimers->GetTimer(timer);
+      if (EPGSearchConfig.onePressTimerCreation == 0 || t || !item->event || (!t && item->event && item->event->StartTime() - (Setup.MarginStart+2) * 60 < time(NULL)))
+      {
+@@ -246,7 +255,15 @@ eOSState cMenuSearchMain::Record(void)
+ #endif
+ 
+ 	 SetAux(timer, fullaux);
++#if VDRVERSNUM > 20300
++         {
++            LOCK_TIMERS_WRITE;
++	    Timers->Add(timer); // cannot use const vdrtimers
++            // implicit SetModified
++         }
++#else
+ 	 vdrtimers->Add(timer);
++#endif
+ 	 gl_timerStatusMonitor->SetConflictCheckAdvised();
+ 	 timer->Matches();
+ #if VDRVERSNUM < 20300
+diff --git a/PLUGINS/src/epgsearch/menu_myedittimer.c b/PLUGINS/src/epgsearch/menu_myedittimer.c
+index a9baaf6..d0f8497 100644
+--- a/PLUGINS/src/epgsearch/menu_myedittimer.c
++++ b/PLUGINS/src/epgsearch/menu_myedittimer.c
+@@ -251,6 +251,11 @@ eOSState cMenuMyEditTimer::DeleteTimer()
+     // Check if this timer is active:
+ #if VDRVERSNUM > 20300
+     LOCK_TIMERS_WRITE;
++    if (!Timers) {
++        ERROR("Epgsearch: Recursive LOCK DeleteTimer failed");
++        return osContinue;
++    }
++    Timers->SetExplicitModify();
+     cTimers *vdrtimers = Timers;
+ #else
+     cTimers *vdrtimers = &Timers;
+@@ -270,20 +275,11 @@ eOSState cMenuMyEditTimer::DeleteTimer()
+ 		    return osContinue;
+ 	    }
+ 	    LogFile.iSysLog("deleting timer %s", *timer->ToDescr());
+-            if (vdrtimers)
+-            {
+-	       vdrtimers->Del(timer);
++	    vdrtimers->Del(timer);
+ 
+-	       gl_timerStatusMonitor->SetConflictCheckAdvised();
+-#if VDRVERSNUM < 20300
+-	       Timers.SetModified();
+-#endif
+-	       return osBack;
+-            }
+-            else
+-            {
+-               LogFile.iSysLog("EPGSEARCH deleting timer failed");
+-            }
++	    gl_timerStatusMonitor->SetConflictCheckAdvised();
++	    vdrtimers->SetModified();
++	    return osBack;
+         }
+     }
+     return osContinue;
+@@ -450,23 +446,31 @@ eOSState cMenuMyEditTimer::ProcessKey(eKeys Key)
+ #if VDRVERSNUM > 20300
+                     {
+                     LOCK_TIMERS_WRITE;
++                    if (!Timers) {
++                        ERROR("Epgsearch: recursive TIMERS LOCK");
++                        return osBack;
++                    }
++                    Timers->SetExplicitModify();
+                     cTimers* vdrtimers = Timers;
+ #else
+                     cTimers* vdrtimers = &Timers;
+ #endif
+-                    if (addIfConfirmed && vdrtimers != NULL)
++                    if (addIfConfirmed) {
+                       vdrtimers->Add(timer);
+ #if VDRVERSNUM > 20300
++                      vdrtimers->SetModified();
++                    }
+                     }
+                     LOCK_SCHEDULES_READ;
+                     timer->SetEventFromSchedule(Schedules);
+ #else
++                    }
+                     timer->SetEventFromSchedule();
+ #endif
+                     timer->Matches();
+                     gl_timerStatusMonitor->SetConflictCheckAdvised();
+ #if VDRVERSNUM < 20300
+-                    Timers.SetModified();
++                    vdrtimers->SetModified();
+ #endif
+                     addIfConfirmed = false;
+                 } else {
+diff --git a/PLUGINS/src/epgsearch/menu_searchresults.c b/PLUGINS/src/epgsearch/menu_searchresults.c
+index b8210f0..e761422 100644
+--- a/PLUGINS/src/epgsearch/menu_searchresults.c
++++ b/PLUGINS/src/epgsearch/menu_searchresults.c
+@@ -259,6 +259,7 @@ eOSState cMenuSearchResults::Record(void)
+    if (item) {
+ #if VDRVERSNUM > 20300
+       LOCK_TIMERS_WRITE;
++      Timers->SetExplicitModify();
+       cTimers *vdrtimers = Timers;
+ #else
+       cTimers *vdrtimers = &Timers;
+@@ -319,9 +320,7 @@ eOSState cMenuSearchResults::Record(void)
+          vdrtimers->Add(timer);
+ 	 gl_timerStatusMonitor->SetConflictCheckAdvised();
+          timer->Matches();
+-#if VDRVERSNUM < 20300
+-         Timers.SetModified();
+-#endif
++         vdrtimers->SetModified();
+          LogFile.iSysLog("timer %s added (active)", *timer->ToDescr());
+ 
+          if (HasSubMenu())
+diff --git a/PLUGINS/src/epgsearch/menu_whatson.c b/PLUGINS/src/epgsearch/menu_whatson.c
+index fa9dc2b..22ce378 100644
+--- a/PLUGINS/src/epgsearch/menu_whatson.c
++++ b/PLUGINS/src/epgsearch/menu_whatson.c
+@@ -592,6 +592,7 @@ eOSState cMenuWhatsOnSearch::Record(void)
+    {
+ #if VDRVERSNUM > 20300
+       LOCK_TIMERS_WRITE;
++      Timers->SetExplicitModify();
+       cTimers *vdrtimers = Timers;
+ #else
+       cTimers *vdrtimers = &Timers;
+@@ -662,9 +663,7 @@ eOSState cMenuWhatsOnSearch::Record(void)
+          vdrtimers->Add(timer);
+ 	 gl_timerStatusMonitor->SetConflictCheckAdvised();
+          timer->Matches();
+-#if VDRVERSNUM < 20300
+-         Timers.SetModified();
+-#endif
++         vdrtimers->SetModified();
+          LogFile.iSysLog("timer %s added (active)", *timer->ToDescr());
+ 
+          if (HasSubMenu())
+diff --git a/PLUGINS/src/epgsearch/searchtimer_thread.c b/PLUGINS/src/epgsearch/searchtimer_thread.c
+index 85c18ce..8e58cfd 100644
+--- a/PLUGINS/src/epgsearch/searchtimer_thread.c
++++ b/PLUGINS/src/epgsearch/searchtimer_thread.c
+@@ -268,7 +268,7 @@ void cSearchTimerThread::Action(void)
+            {
+ #if VDRVERSNUM > 20300
+             LOCK_TIMERS_READ;
+-            cTimers *vdrtimers = (cTimers *)Timers;
++            const cTimers *vdrtimers = Timers;
+ #else
+             cTimers *vdrtimers = &Timers;
+ #endif
+@@ -954,7 +954,7 @@ void cSearchTimerThread::CheckManualTimers(void)
+ 
+ #if VDRVERSNUM > 20300
+     LOCK_TIMERS_WRITE;  // to be checked !!!
+-    cTimers *vdrtimers = (cTimers*) Timers;
++    cTimers *vdrtimers = Timers;
+     LOCK_SCHEDULES_READ;
+     const cSchedules *schedules = Schedules;
+ #else

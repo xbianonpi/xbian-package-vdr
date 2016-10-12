@@ -3,9 +3,9 @@
 
     FILE="$XBIANARCHDIR/working/debian/vdr-plugin-$PLUGIN.changelog"
     FOLDER="$XBIANARCHDIR/working/PLUGINS/src/$PLUGIN"
-    cd $FOLDER
+    [ -d "$FOLDER" ] && cd $FOLDER || exit 0
 
-    ver="$(grep 'static const char \*VERSION *=' $PLUGIN.c | awk '{ print $6 }' | sed -e 's/[";]//g')-$(ls --full-time $PLUGIN.c | awk '{ print $6 }' | tr -d '-' 2>/dev/null)"
+    ver="$(grep 'static const char \*VERSION *=' $PLUGIN.c | awk '{ print $6 }' | sed -e "s///" | sed -e 's/[";]//g')-$(ls --full-time $PLUGIN.c | awk '{ print $6 }' | tr -d '-' 2>/dev/null)"
     echo "Setting $PLUGIN version to $ver"
 
     sed -i "0,/vdr-plugin-$PLUGIN/s//vdr/" $FILE; \
@@ -19,7 +19,7 @@
 
     FILE="$XBIANARCHDIR/working/debian/vdr-plugin-$PLUGIN.changelog"
     FOLDER="$XBIANARCHDIR/working/PLUGINS/src/$PLUGIN"
-    cd $FOLDER
+    [ -d "$FOLDER" ] && cd $FOLDER || exit 0
 
     ver="$(grep 'static const char \*VERSION *=' $PLUGIN.c | awk '{ print $6 }' | sed -e 's/[";]//g')-$(ls --full-time $PLUGIN.c | awk '{ print $6 }' | tr -d '-' 2>/dev/null)"
     echo "Setting $PLUGIN version to $ver"

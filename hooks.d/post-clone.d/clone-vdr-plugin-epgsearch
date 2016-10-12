@@ -1,4 +1,12 @@
-cd PLUGINS/src
 
-[ -e epgsearch ] && rm -rf epgsearch
-git clone http://projects.vdr-developer.org/git/vdr-plugin-epgsearch.git epgsearch
+if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw epgsearch; then
+
+    VDRVERSION="$(grep "#define.*VDRVERSION" config.h | awk '{print $3}'|tr -d '"; ')"
+
+    cd PLUGINS/src
+
+    [ -e epgsearch ] && rm -rf epgsearch
+    [ "$VDRVERSION" \< "2.3.0" ] && \
+        git clone http://projects.vdr-developer.org/git/vdr-plugin-epgsearch.git epgsearch || \
+        git clone -b vdr-2.3.1 https://github.com/flensrocker/vdr-plugin-epgsearch epgsearch
+fi

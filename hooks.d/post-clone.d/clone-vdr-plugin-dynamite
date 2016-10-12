@@ -1,4 +1,7 @@
-cd PLUGINS/src
 
-[ -e dynamite ] && rm -rf dynamite
-git clone https://github.com/flensrocker/vdr-plugin-dynamite dynamite
+if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw dynamite; then
+    cd PLUGINS/src
+
+    [ -e dynamite ] && rm -rf dynamite
+    git clone https://github.com/flensrocker/vdr-plugin-dynamite dynamite
+fi

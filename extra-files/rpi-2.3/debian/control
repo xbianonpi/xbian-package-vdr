@@ -1,0 +1,326 @@
+Source: vdr
+Section: video
+Priority: extra
+Maintainer: Manfred Kreisl nachteule@xbian.org
+Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <etobi@debian.org>, Thomas Günther <tom@toms-cafe.de>
+Build-Depends: debhelper (>= 9), libjpeg-dev, libcap-dev, dh-systemd,
+  libncursesw5-dev, libfreetype6-dev, libfontconfig-dev, gettext,
+  python, linux-libc-dev (>= 3.0), libfribidi-dev, libsystemd-daemon-dev
+Standards-Version: 3.9.6
+Vcs-Git: git://git.debian.org/pkg-vdr-dvb/vdr.git
+Vcs-Browser: http://git.debian.org/?p=pkg-vdr-dvb/vdr.git
+Homepage: http://www.tvdr.de/
+
+Package: vdr
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
+Recommends: lirc, ttf-bitstream-vera | fonts-freefont-ttf
+Suggests: vdr-plugin-dvbsddevice
+Provides: ${vdr:Provides}
+Description: Video Disk Recorder for DVB cards
+ Video Disk Recorder (VDR) is a digital sat-receiver program using
+ Linux and DVB technologies. It allows one to record MPEG2 streams,
+ as well as output the stream to TV. It is also possible to watch DVDs
+ (hardware accelerated) with some comfort and use an IR remote control.
+ .
+ This package contains the VDR main program which is controlled via the
+ PC keyboard or a IR remote control.
+ .
+ NOTE: You should install compatible DVB drivers before using these
+ programs. Also the standard VDR (without special plugins) requires
+ a DVB-Card with an integrated mpeg-decoder, a so called
+ Full-Featured Card.
+
+Package: vdr-dev
+Architecture: all
+Depends: ${misc:Depends}, debhelper, linux-libc-dev (>= 3.0)
+Suggests: dh-make, make
+Description: Video Disk Recorder for DVB cards
+ Video Disk Recorder (VDR) is a digital sat-receiver program using
+ Linux and DVB technologies. It allows one to record MPEG2 streams,
+ as well as output the stream to TV. It is also possible to watch DVDs
+ (hardware accelerated) with some comfort and use an IR remote control.
+ .
+ This package contains the header files of VDR.
+ You need this package to be able to build vdr-plugins!
+
+Package: vdr-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, vdr (= ${binary:Version}), gdb
+Description: Debug symbols for the VDR Video Disc Recorder
+ Video Disk Recorder (VDR) is a digital sat-receiver program using
+ Linux and DVB technologies. It allows one to record MPEG2 streams,
+ as well as output the stream to TV. It is also possible to watch DVDs
+ (hardware accelerated) with some comfort and use an IR remote control.
+ .
+ This package contains the debugging symbols for vdr.
+
+Package: vdr-plugin-examples
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version})
+Replaces: vdr (<< 2.0.1-1)
+Breaks: vdr (<< 2.0.1-1)
+Description: Plugins for vdr to show some possible features
+ Video Disk Recorder (VDR) is a digital sat-receiver program using
+ Linux and DVB technologies. It allows one to record MPEG2 streams,
+ as well as output the stream to TV.
+ .
+ This package contains the example-plugins hello, osddemo, svccli,
+ svcsvr, skincurses, status and svdrpdemo from the vdr-source.
+ These plugins do not have useful features, they only demonstrate
+ how vdr-plugins work and what is possible to do with them.
+
+Package: vdr-plugin-dynamite
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}
+Description: A VDR plugin add hotplug functionality to the vdr
+ The goal of this plugin is to add hotplug functionality to the vdr.
+ This is achieved by wrapping a helper device around cDvbDevice which
+ checks if the hardware is available.
+
+Package: vdr-plugin-dynamite-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: vdr-plugin-dynamite (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for vdr-plugin-dynamite
+ .
+ This package contains only the debugging symbols for vdr-plugin-dynamite
+
+Package: vdr-plugin-vnsiserver
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}
+Description: VDR-Network-Streaming-Interface
+ VDR-Network-Streaming-Interface
+
+Package: vdr-plugin-vnsiserver-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: vdr-plugin-vnsiserver (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for vdr-plugin-vnsiserver
+ .
+ This package contains only the debugging symbols for vdr-plugin-vnsiserver
+
+Package: vdr-plugin-sc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A software emulated CAM
+ The plugin decrypts the scrambling codewords from the incomming ECM stream. The
+ actual descrambling of the video stream is either done by the ECD chip on
+ full-featured DVB cards or with the included FFdecsa implementation on budget
+ cards.
+
+Package: vdr-plugin-sc-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: vdr-plugin-sc (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for vdr-plugin-sc
+ .
+ This package contains only the debugging symbols for vdr-plugin-sc
+
+Package: vdr-plugin-sc-cardclient
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: Cardclient system for vdr-plugin-sc
+
+Package: vdr-plugin-sc-conax
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: Conax system for vdr-plugin-sc
+
+Package: vdr-plugin-sc-constcw
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: Constcw system for vdr-plugin-sc
+
+Package: vdr-plugin-sc-cryptoworks
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: Cryptoworks system for vdr-plugin-sc
+
+Package: vdr-plugin-sc-irdeto
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: Irdeto system for vdr-plugin-sc
+
+Package: vdr-plugin-sc-nagra
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: Nagra system for vdr-plugin-sc
+
+Package: vdr-plugin-sc-nds
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: NDS system for vdr-plugin-sc
+
+Package: vdr-plugin-sc-seca
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: Seca system for vdr-plugin-sc
+
+Package: vdr-plugin-sc-shl
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: SHL system for vdr-plugin-sc
+
+Package: vdr-plugin-sc-viaccess
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: Viaccess system for vdr-plugin-sc
+
+Package: vdr-plugin-sc-videoguard2
+Architecture: any
+Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Description: Videoguard2 system for vdr-plugin-sc
+
+Package: vdr-plugin-dvbapi
+Conflicts: vdr-plugin-sc
+Replaces: vdr-plugin-sc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}, libdvbcsa1
+Description: VDR-Plugin dvbapi
+ VDR-Plugin dvbapi
+
+Package: vdr-plugin-dvbapi-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: vdr-plugin-dvbapi (= ${binary:Version}), ${misc:Depends}, libdvbcsa1
+Description: VDR-Plugin dvbapi
+ VDR-Plugin dvbapi
+ .
+ This package contains the debugging symbols.
+
+Package: vdr-plugin-epgsearch
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}, sendemail
+Description: VDR plugin that provides extensive EPG searching capabilities
+ This plugin for the Linux Video Disc Recorder (VDR) allows searching the EPG
+ (electronic programme guide) data by defining search terms that can
+ permanently be stored in a list for later reuse. It supports regular
+ expressions and is capable of doing fuzzy searches. EPG-Search scans the EPG
+ in background and can automatically create timers for matching search terms.
+ Besides this it supports searching for repetitions, detection of timer
+ conflicts, sending emails on timer events and much more. Search terms can
+ also be added and modified with vdradmin-am, a web frontend for VDR.
+
+Package: vdr-plugin-epgsearch-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: vdr-plugin-epgsearch (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for vdr-plugin-epgsearch
+ .
+ This package contains only the debugging symbols for vdr-plugin-epgsearch 
+
+Package: vdr-plugin-streamdev-client
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}
+Description: VDR Plugin to stream Live-TV to other VDR's - client part 
+ This plugin for vdr lets the software stream videos into
+ the network. You can interconnect several vdrs that way
+ or watch those streams with special client apps like video
+ lan client or mplayer. This is the client part.
+Vcs-Git: git://git.debian.org/git/pkg-vdr-dvb/vdr-plugin-streamdev.git
+Vcs-Browser: http://git.debian.org/?p=pkg-vdr-dvb/vdr-plugin-streamdev.git
+
+Package: vdr-plugin-streamdev-server
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}
+Description: VDR Plugin to stream Live-TV to other VDR's - server part 
+ This plugin for vdr lets the software stream videos into
+ the network. You can interconnect several vdrs that way
+ or watch those streams with special client apps like video
+ lan client or mplayer. This is the server part.
+
+Package: vdr-plugin-streamdev-server-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: vdr-plugin-streamdev-server (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for vdr-plugin-streamdev-server
+ .
+ This package contains only the debugging symbols for vdr-plugin-streamdev-server
+
+Package: vdr-plugin-streamdev-client-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: vdr-plugin-streamdev-client (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for vdr-plugin-streamdev-client
+ .
+ This package contains only the debugging symbols for vdr-plugin-streamdev-client
+
+Package: vdr-plugin-live
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}
+Description: Web administration plugin for VDR
+ Live, the "Live Interactive VDR Environment", is a plugin providing the
+ possibility to interactively control the Linux Video Disc Recorder VDR and
+ some of it's plugins from a web interface.
+ .
+ Unlike external programs, like the VDR web frontend "VDRAdmin-AM", that 
+ communicate  with VDR via its SVDRP socket interface, Live has direct
+ access to VDR's data structures and thus is very fast.
+
+Package: vdr-plugin-live-dbg
+Architecture: any
+Section: debug
+Depends: vdr-plugin-live (= ${binary:Version}), ${misc:Depends}
+Priority: extra
+Description: debugging symbols for vdr-plugin-live
+ .
+ This package contains only the debugging symbols for vdr-plugin-live
+
+Package: vdr-plugin-wirbelscan
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}
+Description: Channelscan plugin for VDR
+ This plugin allows you to scan for new channels. DVB-T and DVB-C are supported
+ as well as DVB-S and pvrinput/ptv (analog) scan.
+
+Package: vdr-plugin-wirbelscan-dev
+Architecture: all
+Depends: ${misc:Depends}, debhelper, linux-libc-dev (>= 3.0)
+Suggests: dh-make, make
+Description: Channelscan plugin for VDR
+ This plugin allows you to scan for new channels. DVB-T and DVB-C are supported
+ as well as DVB-S and pvrinput/ptv (analog) scan.
+ .
+ This package contains the header files of vdr-plugin-wirbelscan.
+ You need this package to be able to build vdr-plugins that depends on
+ the plugin wirbelscan!
+
+Package: vdr-plugin-wirbelscan-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, vdr-plugin-wirbelscan (= ${binary:Version}), gdb
+Description: Debug symbols for the Channelscan plugin for VDR
+ This plugin allows you to scan for new channels. DVB-T and DVB-C are supported
+ as well as DVB-S and pvrinput/ptv (analog) scan.
+ .
+ This package contains the debugging symbols for wirbelscan plugin.
+
+Package: vdr-plugin-wirbelscancontrol
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}
+Description: Channelscan plugin for VDR
+ This plugin allows you to scan for new channels. DVB-T and DVB-C are supported
+ as well as DVB-S and pvrinput/ptv (analog) scan.
+
+Package: vdr-plugin-wirbelscancontrol-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, vdr-plugin-wirbelscan (= ${binary:Version}), gdb
+Description: Debug symbols for the Channelscan plugin for VDR
+ This plugin allows you to scan for new channels. DVB-T and DVB-C are supported
+ as well as DVB-S and pvrinput/ptv (analog) scan.
+ .
+ This package contains the debugging symbols for wirbelscancontrol plugin.
+

@@ -1,4 +1,7 @@
-cd PLUGINS/src
 
-[ -e vnsiserver ] && rm -rf vnsiserver
-git clone https://github.com/FernetMenta/vdr-plugin-vnsiserver vnsiserver
+if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw vnsiserver; then
+    cd PLUGINS/src
+
+    [ -e vnsiserver ] && rm -rf vnsiserver
+    git clone https://github.com/FernetMenta/vdr-plugin-vnsiserver vnsiserver
+fi

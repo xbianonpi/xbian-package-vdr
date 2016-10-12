@@ -1,0 +1,18 @@
+Package: vdr-dbg
+Source: vdr
+Version: 2.3.1~xbian-1474845796
+Architecture: armhf
+Maintainer: Manfred Kreisl nachteule@xbian.org
+Installed-Size: 2177
+Depends: vdr (= 2.3.1~xbian-1474845796), gdb
+Section: debug
+Priority: extra
+Homepage: http://www.tvdr.de/
+Description: Debug symbols for the VDR Video Disc Recorder
+ Video Disk Recorder (VDR) is a digital sat-receiver program using
+ Linux and DVB technologies. It allows one to record MPEG2 streams,
+ as well as output the stream to TV. It is also possible to watch DVDs
+ (hardware accelerated) with some comfort and use an IR remote control.
+ .
+ This package contains the debugging symbols for vdr.
+Build-Ids: 968293a6afcb819bb753f7a525656526f64eea0c ab0495e755c8bcb9587c844b2d19faaec8e4d277

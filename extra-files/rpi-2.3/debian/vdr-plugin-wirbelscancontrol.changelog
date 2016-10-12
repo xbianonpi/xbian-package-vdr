@@ -1,0 +1,6 @@
+vdr-plugin-wirbelscancontrol (0.0.9~20150111-1yavdr1~trusty) trusty; urgency=medium
+
+  * Initial Release.
+
+ -- Manfred Kreisl <mkreisl@xbian.org>  Thu Oct 29 20:57:06 CET 2015
+

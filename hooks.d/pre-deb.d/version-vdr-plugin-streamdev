@@ -3,7 +3,7 @@
 
     FILE="$XBIANARCHDIR/working/debian/vdr-plugin-$PLUGIN-server.changelog"
     FOLDER="$XBIANARCHDIR/working/PLUGINS/src/$PLUGIN"
-    cd $FOLDER
+    [ -d "$FOLDER" ] && cd $FOLDER || exit 0
 
     ver="$(grep 'const char \*VERSION *=' common.c | awk '{ print $5 }' | sed -e 's/[";]//g' | sed -e 's/-git//g')-git.$(git show --pretty=format:"%cd" --date=short --quiet | tr -d '-' 2>/dev/null)"
     echo "Setting version to $ver"

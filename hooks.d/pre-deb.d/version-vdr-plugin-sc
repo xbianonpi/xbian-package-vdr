@@ -1,6 +1,9 @@
 
 (
     FILE="debian/vdr-plugin-sc.changelog"
+
+    [ ! -e PLUGINS/src/sc/version.c ] && exit 0
+
     ver="$(grep ScVersion PLUGINS/src/sc/version.c | awk -F'=' '{print $2}' | awk -F'~' '{print $1}'|tr -d '"; ')"
     echo "Setting version to $ver"
     sed -i "0,/vdr-plugin-sc/s//vdr/" $FILE; \

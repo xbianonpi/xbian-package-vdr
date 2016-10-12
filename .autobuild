@@ -1,3 +1,7 @@
 rpi stable rpi-jessie
 rpi2 stable rpi2-jessie
 imx6 stable imx6-jessie
+
+rpi-2.3 devel rpi-jessie
+rpi2-2.3 devel rpi2-jessie
+imx6-2.3 devel imx6-jessie

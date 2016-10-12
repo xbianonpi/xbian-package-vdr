@@ -1,0 +1,5 @@
+usr/lib/vdr/plugins/libvdr-wirbelscan.so.*
+
+usr/share/locale/*/*/vdr-wirbelscan.*
+
+debian/conf/wirbelscan.conf etc/vdr/conf.avail/

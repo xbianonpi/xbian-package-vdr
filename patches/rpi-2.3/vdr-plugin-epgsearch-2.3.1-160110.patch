@@ -1,0 +1,225 @@
+diff --git a/PLUGINS/src/epgsearch/conflictcheck.c b/PLUGINS/src/epgsearch/conflictcheck.c
+index 4e9e2d3..9202df8 100644
+--- a/PLUGINS/src/epgsearch/conflictcheck.c
++++ b/PLUGINS/src/epgsearch/conflictcheck.c
+@@ -235,15 +235,27 @@ void cConflictCheck::BondDevices(const char *Bondings)
+ #endif
+ }
+ 
++#if VDRVERSNUM > 20300
++void cConflictCheck::Check(const cTimers* vdrtimers)
++{
++    Check_(vdrtimers);
++}
++#endif
+ 
+ void cConflictCheck::Check()
+ {
++    const cTimers* vdrtimers = NULL;
++    Check_(vdrtimers);
++}
++
++void cConflictCheck::Check_(const cTimers* vdrtimers)
++{
+     if (evaltimeList)
+ 	DELETENULL(evaltimeList);
+     if (timerList)
+ 	DELETENULL(timerList);
+ 
+-    timerList = CreateCurrentTimerList();
++    timerList = CreateCurrentTimerList(vdrtimers);
+     if (timerList) evaltimeList = CreateEvaluationTimeList(timerList);
+     if (evaltimeList) failedList = CreateConflictList(evaltimeList, timerList);
+     if (failedList)
+@@ -260,7 +272,7 @@ void cConflictCheck::Check()
+       gl_timerStatusMonitor->SetConflictCheckAdvised();
+ }
+ 
+-cList<cConflictCheckTimerObj>* cConflictCheck::CreateCurrentTimerList()
++cList<cConflictCheckTimerObj>* cConflictCheck::CreateCurrentTimerList(const cTimers* vdrtimers)
+ {
+     LogFile.Log(3,"current timer list creation started");
+     cList<cConflictCheckTimerObj>* CurrentTimerList = NULL;
+@@ -268,10 +280,12 @@ cList<cConflictCheckTimerObj>* cConflictCheck::CreateCurrentTimerList()
+     // collect single event timers
+     time_t tMax = 0;
+ #if VDRVERSNUM > 20300
+-    LOCK_TIMERS_READ;
+-    const cTimers *vdrtimers = Timers;
++    if (!vdrtimers) {
++        LOCK_TIMERS_READ;
++        vdrtimers = Timers;
++    }
+ #else
+-    const cTimers *vdrtimers = &Timers;
++    vdrtimers = &Timers;
+ #endif
+     const cTimer* ti = NULL;
+     for (ti = vdrtimers->First(); ti; ti = vdrtimers->Next(ti))
+@@ -680,7 +694,7 @@ void cConflictCheck::AddConflict(cConflictCheckTimerObj* TimerObj, cConflictChec
+     LogFile.Log(3,"conflict found for timer '%s' (%s, channel %s)", TimerObj->timer->File(), DAYDATETIME(TimerObj->start), CHANNELNAME(TimerObj->timer->Channel()));
+ }
+ 
+-bool cConflictCheck::TimerInConflict(const cTimer* timer)
++bool cConflictCheck::TimerInConflict(const cTimers* vdrtimers, const cTimer* timer)
+ {
+     for(cConflictCheckTime* checkTime = failedList->First(); checkTime; checkTime = failedList->Next(checkTime))
+     {
+@@ -694,12 +708,6 @@ bool cConflictCheck::TimerInConflict(const cTimer* timer)
+ 		{
+ 		    for (it2 = (*it)->concurrentTimers->begin(); it2 != (*it)->concurrentTimers->end(); ++it2)
+ 		    {
+-#if VDRVERSNUM > 20300
+-			LOCK_TIMERS_READ;
+-			const cTimers *vdrtimers = Timers;
+-#else
+-			cTimers *vdrtimers = &Timers;
+-#endif
+ 			if ((*it2)->OrigTimer(vdrtimers) == timer)
+ 			    return true;
+ 		    }
+diff --git a/PLUGINS/src/epgsearch/conflictcheck.h b/PLUGINS/src/epgsearch/conflictcheck.h
+index 940f864..75e82e2 100644
+--- a/PLUGINS/src/epgsearch/conflictcheck.h
++++ b/PLUGINS/src/epgsearch/conflictcheck.h
+@@ -275,6 +275,8 @@ class cConflictCheck
+     int numDevices;
+     time_t maxCheck;
+     std::vector<eModuleStatus> camSlotStatusArray;
++ private:
++    void Check_(const cTimers* vdrtimers);
+  public:
+     int relevantConflicts;
+     int numConflicts;
+@@ -284,8 +286,11 @@ class cConflictCheck
+     ~cConflictCheck();
+     void InitDevicesInfo();
+     void Check();
++#if VDRVERSNUM > 20300
++    void Check(const cTimers* vdrtimers);
++#endif
+     void BondDevices(const char* bondings);
+-    cList<cConflictCheckTimerObj>* CreateCurrentTimerList();
++    cList<cConflictCheckTimerObj>* CreateCurrentTimerList(const cTimers* vdrtimers);
+     cList<cConflictCheckTime>* CreateEvaluationTimeList(cList<cConflictCheckTimerObj>*);
+     cList<cConflictCheckTime>* CreateConflictList(cList<cConflictCheckTime>*, cList<cConflictCheckTimerObj>* timerList);
+     int GetDevice(cConflictCheckTimerObj* TimerObj, bool *NeedsDetachReceivers);
+@@ -293,7 +298,7 @@ class cConflictCheck
+     cList<cConflictCheckTimerObj>* GetTimers() { return timerList; }
+     void AddConflict(cConflictCheckTimerObj* TimerObj, cConflictCheckTime* Checktime, std::set<cConflictCheckTimerObj*>& pendingTimers);
+     int ProcessCheckTime(cConflictCheckTime* checkTime);
+-    bool TimerInConflict(const cTimer*);
++    bool TimerInConflict(const cTimers* vdrtimers, const cTimer*);
+     void EvaluateConflCheckCmd();
+     eModuleStatus CamSlotModuleStatus(cCamSlot *CamSlot);
+ };
+diff --git a/PLUGINS/src/epgsearch/conflictcheck_thread.c b/PLUGINS/src/epgsearch/conflictcheck_thread.c
+index a81bd8b..8c52d85 100644
+--- a/PLUGINS/src/epgsearch/conflictcheck_thread.c
++++ b/PLUGINS/src/epgsearch/conflictcheck_thread.c
+@@ -102,7 +102,11 @@ void cConflictCheckThread::Action(void)
+ 	if (now >= nextUpdate || m_forceUpdate)
+ 	{
+ 	    m_forceUpdate = false;
+-#if VDRVERSNUM < 20300
++#if VDRVERSNUM > 20300
++            {
++                LOCK_TIMERS_READ;
++            }
++#else
+ 	    if (Timers.BeingEdited())
+ 	    {
+ 		Wait.Wait(1000);
+diff --git a/PLUGINS/src/epgsearch/epgsearchext.c b/PLUGINS/src/epgsearch/epgsearchext.c
+index 0c981dc..fea3f85 100644
+--- a/PLUGINS/src/epgsearch/epgsearchext.c
++++ b/PLUGINS/src/epgsearch/epgsearchext.c
+@@ -1307,7 +1307,8 @@ void cSearchExt::CheckExistingRecordings(cSearchResults* pResults)
+    LogFile.Log(3,"analysing existing recordings for search timer '%s'...", search);
+ 
+    // how many recordings do we already have?
+-   int num = GetCountRecordings();
++   cRecordings *vdrrecordings = NULL;
++   int num = GetCountRecordings(vdrrecordings);
+ 
+    cSearchResult* pResultObj = NULL;
+    int remain = pauseOnNrRecordings - num;
+@@ -1436,15 +1437,17 @@ cTimerObjList* cSearchExt::GetTimerList(const cTimers* vdrtimers, cTimerObjList*
+ }
+ 
+ // counts the currently existent recordings triggered by this search timer
+-int cSearchExt::GetCountRecordings()
++int cSearchExt::GetCountRecordings(cRecordings *vdrrecordings)
+ {
+    int countRecs = 0;
+ 
+ #if VDRVERSNUM > 20300
+-   LOCK_RECORDINGS_READ;
+-   const cRecordings *vdrrecordings = Recordings;
++   if (!vdrrecordings) {
++       LOCK_RECORDINGS_READ;
++       vdrrecordings = (cRecordings *)Recordings;
++   }
+ #else
+-   cRecordings *vdrrecordings = &Recordings;
++   vdrrecordings = &Recordings;
+ #endif
+    for (const cRecording *recording = vdrrecordings->First(); recording; recording = vdrrecordings->Next(recording))
+    {
+diff --git a/PLUGINS/src/epgsearch/epgsearchext.h b/PLUGINS/src/epgsearch/epgsearchext.h
+index 3d4b9c5..3e6148e 100644
+--- a/PLUGINS/src/epgsearch/epgsearchext.h
++++ b/PLUGINS/src/epgsearch/epgsearchext.h
+@@ -200,7 +200,7 @@ public:
+   void OnOffTimers(bool);
+   void DeleteAllTimers();
+   cTimerObjList* GetTimerList(const cTimers* vdrtimers, cTimerObjList* timerList);
+-  int GetCountRecordings();
++  int GetCountRecordings(cRecordings *vdrrecordings);
+   bool IsActiveAt(time_t t);
+   bool HasContent(int contentID);
+   void SetContentFilter(int* contentStringsFlags);
+diff --git a/PLUGINS/src/epgsearch/menu_searchresults.c b/PLUGINS/src/epgsearch/menu_searchresults.c
+index 396c9d6..b8210f0 100644
+--- a/PLUGINS/src/epgsearch/menu_searchresults.c
++++ b/PLUGINS/src/epgsearch/menu_searchresults.c
+@@ -171,8 +171,12 @@ bool cMenuSearchResultsItem::Update(const cTimers* vdrtimers, bool Force)
+       if (EPGSearchConfig.checkTimerConflAfterTimerProg && !Force && timer && timerMatch && timerMatch != OldTimerMatch)
+       {
+          cConflictCheck C;
++#if VDRVERSNUM > 20300
++         C.Check(vdrtimers);
++#else
+          C.Check();
+-         if (C.TimerInConflict(timer))
++#endif
++         if (C.TimerInConflict(vdrtimers, timer))
+             gl_InfoConflict = 1;
+       }
+ 
+diff --git a/PLUGINS/src/epgsearch/menu_whatson.c b/PLUGINS/src/epgsearch/menu_whatson.c
+index 51fa7e0..fa9dc2b 100644
+--- a/PLUGINS/src/epgsearch/menu_whatson.c
++++ b/PLUGINS/src/epgsearch/menu_whatson.c
+@@ -249,7 +249,7 @@ bool cMenuMyScheduleItem::Update(const cTimers* vdrtimers, bool Force)
+       {
+          cConflictCheck C;
+          C.Check();
+-         if (C.TimerInConflict(timer))
++         if (C.TimerInConflict(vdrtimers, timer))
+             gl_InfoConflict = 1;
+       }
+       return true;
+diff --git a/PLUGINS/src/epgsearch/searchtimer_thread.c b/PLUGINS/src/epgsearch/searchtimer_thread.c
+index 2ad4b07..85c18ce 100644
+--- a/PLUGINS/src/epgsearch/searchtimer_thread.c
++++ b/PLUGINS/src/epgsearch/searchtimer_thread.c
+@@ -882,7 +882,7 @@ void cSearchTimerThread::CheckExpiredRecs()
+    {
+       cRecording* recording = recordingObj->recording;
+       cSearchExt* search = recordingObj->search;
+-      if (search->recordingsKeep > 0 && search->recordingsKeep >= search->GetCountRecordings())
++      if (search->recordingsKeep > 0 && search->recordingsKeep >= search->GetCountRecordings(vdrrecordings))
+       {
+ #if APIVERSNUM < 10721
+          LogFile.Log(1, "recording '%s' from %s expired, but will be kept, search timer %s", recording->Name(), DAYDATETIME(recording->start), recordingObj->search->search);

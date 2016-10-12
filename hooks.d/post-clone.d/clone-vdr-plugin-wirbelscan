@@ -1,17 +1,24 @@
-cd PLUGINS/src
 
-FOLDER="wirbelscan"
-[ -e $FOLDER ] && rm -rf FOLDER
+if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw wirbelscan; then
 
-mkdir $FOLDER
-wget http://wirbel.htpc-forum.de/wirbelscan/vdr-wirbelscan-0.0.9.tgz
-tar xf vdr-wirbelscan-0.0.9.tgz -C $FOLDER/ --strip-components 1
-rm -f vdr-wirbelscan-0.0.9.tgz
+    VDRVERSION="$(grep "#define.*VDRVERSION" config.h | awk '{print $3}'|tr -d '"; ')"
 
-FOLDER="wirbelscancontrol"
-[ -e $FOLDER ] && rm -rf FOLDER
+    cd PLUGINS/src
 
-mkdir $FOLDER
-wget http://wirbel.htpc-forum.de/wirbelscancontrol/vdr-wirbelscancontrol-0.0.2.tgz
-tar xf vdr-wirbelscancontrol-0.0.2.tgz -C $FOLDER/ --strip-components 1
-rm -f vdr-wirbelscancontrol-0.0.2.tgz
+    FOLDER="wirbelscan"
+    [ -e $FOLDER ] && rm -rf FOLDER
+    mkdir $FOLDER
+
+    [ "$VDRVERSION" \< "2.3.0" ] &&  FILE=vdr-wirbelscan-0.0.9.tgz || FILE=vdr-wirbelscan-dev-2016.08.14.tgz
+    wget http://wirbel.htpc-forum.de/wirbelscan/$FILE
+    tar xf $FILE -C $FOLDER/ --strip-components 1
+    rm -f $FILE
+
+    FOLDER="wirbelscancontrol"
+    [ -e $FOLDER ] && rm -rf FOLDER
+    mkdir $FOLDER
+
+    wget http://wirbel.htpc-forum.de/wirbelscancontrol/vdr-wirbelscancontrol-0.0.2.tgz
+    tar xf vdr-wirbelscancontrol-0.0.2.tgz -C $FOLDER/ --strip-components 1
+    rm -f vdr-wirbelscancontrol-0.0.2.tgz
+fi

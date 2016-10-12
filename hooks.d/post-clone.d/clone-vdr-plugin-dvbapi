@@ -1,5 +1,8 @@
-cd PLUGINS/src
 
-FOLDER="dvbapi"
-[ -e $FOLDER ] && rm -rf FOLDER
-git clone https://github.com/manio/vdr-plugin-dvbapi $FOLDER
+if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw dvbapi; then
+    cd PLUGINS/src
+
+    FOLDER="dvbapi"
+    [ -e $FOLDER ] && rm -rf FOLDER
+    git clone https://github.com/manio/vdr-plugin-dvbapi $FOLDER
+fi

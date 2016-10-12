@@ -1,0 +1,949 @@
+diff --git a/PLUGINS/src/live/epg_events.cpp b/PLUGINS/src/live/epg_events.cpp
+index 9e35f79..10e02e7 100644
+--- a/PLUGINS/src/live/epg_events.cpp
++++ b/PLUGINS/src/live/epg_events.cpp
+@@ -285,7 +285,12 @@ namespace vdrlive
+ 			tChannelID channelId = tChannelID();
+ 
+ 			DecodeDomId(epgid, channelId, eventId);
++#if VDRVERSNUM >= 20301
++			LOCK_CHANNELS_READ;
++			cChannel const *channel = Channels->GetByChannelID(channelId);
++#else
+ 			cChannel const *channel = Channels.GetByChannelID(channelId);
++#endif
+ 			if (!channel) {
+ 				return CreateEpgInfo(epgid, errorInfo, tr("Wrong channel id"));
+ 			}
+diff --git a/PLUGINS/src/live/epg_events.h b/PLUGINS/src/live/epg_events.h
+index 3417f6a..3843bc1 100644
+--- a/PLUGINS/src/live/epg_events.h
++++ b/PLUGINS/src/live/epg_events.h
+@@ -170,7 +170,11 @@ namespace vdrlive
+ 
+ 			virtual time_t GetEndTime() const { return m_event->EndTime(); }
+ 
++#if VDRVERSNUM >= 20301
++			virtual cChannel const * Channel() const { LOCK_CHANNELS_READ; return Channels->GetByChannelID(m_event->ChannelID());}
++#else
+ 			virtual cChannel const * Channel() const { return Channels.GetByChannelID(m_event->ChannelID());}
++#endif
+ 
+ 		private:
+ 			cEvent const * m_event;
+@@ -198,7 +202,11 @@ namespace vdrlive
+ 
+ 			virtual time_t GetEndTime() const { return 0; }
+ 
++#if VDRVERSNUM >= 20301
++			virtual cChannel const * Channel() const { LOCK_CHANNELS_READ; return Channels->GetByChannelID(m_channelID);}
++#else
+ 			virtual cChannel const * Channel() const { return Channels.GetByChannelID(m_channelID);}
++#endif
+ 
+ 		private:
+ 			tChannelID m_channelID;
+diff --git a/PLUGINS/src/live/epgsearch.cpp b/PLUGINS/src/live/epgsearch.cpp
+index cd29a0b..5b4ef75 100644
+--- a/PLUGINS/src/live/epgsearch.cpp
++++ b/PLUGINS/src/live/epgsearch.cpp
+@@ -190,8 +190,14 @@ std::string SearchTimer::ToText()
+ 
+    if (m_useChannel==1)
+    {
++#if VDRVERSNUM >= 20301
++      LOCK_CHANNELS_READ;
++      cChannel const* channelMin = Channels->GetByChannelID( m_channelMin );
++      cChannel const* channelMax = Channels->GetByChannelID( m_channelMax );
++#else
+       cChannel const* channelMin = Channels.GetByChannelID( m_channelMin );
+       cChannel const* channelMax = Channels.GetByChannelID( m_channelMax );
++#endif
+ 
+       if (channelMax && channelMin->Number() < channelMax->Number())
+          tmp_chanSel = *m_channelMin.ToString() + std::string("|") + *m_channelMax.ToString();
+@@ -284,7 +290,12 @@ void SearchTimer::ParseChannelIDs( string const& data )
+ 	vector< string > parts = StringSplit( data, '|' );
+ 	m_channelMin = lexical_cast< tChannelID >( parts[ 0 ] );
+ 
++#if VDRVERSNUM >= 20301
++        LOCK_CHANNELS_READ;
++	cChannel const* channel = Channels->GetByChannelID( m_channelMin );
++#else
+ 	cChannel const* channel = Channels.GetByChannelID( m_channelMin );
++#endif
+ 	if ( channel != 0 )
+ 		m_channels = channel->Name();
+ 
+@@ -293,7 +304,11 @@ void SearchTimer::ParseChannelIDs( string const& data )
+ 
+ 	m_channelMax = lexical_cast< tChannelID >( parts[ 1 ] );
+ 
++#if VDRVERSNUM >= 20301
++	channel = Channels->GetByChannelID( m_channelMax );
++#else
+ 	channel = Channels.GetByChannelID( m_channelMax );
++#endif
+ 	if ( channel != 0 )
+ 		m_channels += string( " - " ) + channel->Name();
+ }
+@@ -352,7 +367,11 @@ bool SearchTimers::Reload()
+ 	if ( !CheckEpgsearchVersion() || cPluginManager::CallFirstService(ServiceInterface, &service) == 0 )
+ 		throw HtmlError( tr("EPGSearch version outdated! Please update.") );
+ 
++#if VDRVERSNUM >= 20301
++        LOCK_CHANNELS_READ;
++#else
+ 	ReadLock channelsLock( Channels, 0 );
++#endif
+ 	list< string > timers = service.handler->SearchTimerList();
+ 	m_timers.assign( timers.begin(), timers.end() );
+ 	m_timers.sort();
+@@ -366,7 +385,11 @@ bool SearchTimers::Save(SearchTimer* searchtimer)
+ 		throw HtmlError( tr("EPGSearch version outdated! Please update.") );
+ 
+ 	if (!searchtimer) return false;
++#if VDRVERSNUM >= 20301
++        LOCK_CHANNELS_READ;
++#else
+ 	ReadLock channelsLock( Channels, 0 );
++#endif
+ 	if (searchtimer->Id() >= 0)
+ 		return service.handler->ModSearchTimer(searchtimer->ToText());
+ 	else
+@@ -556,7 +579,11 @@ SearchResult::SearchResult( string const& data )
+ const cEvent* SearchResult::GetEvent()
+ {
+ 	cSchedulesLock schedulesLock;
++#if VDRVERSNUM >= 20301
++        LOCK_SCHEDULES_READ;
++#else
+ 	const cSchedules* Schedules = cSchedules::Schedules(schedulesLock);
++#endif
+ 	if (!Schedules) return NULL;
+ 	const cChannel *Channel = GetChannel();
+ 	if (!Channel) return NULL;
+diff --git a/PLUGINS/src/live/epgsearch.h b/PLUGINS/src/live/epgsearch.h
+index 67a9b99..f6fbd2f 100644
+--- a/PLUGINS/src/live/epgsearch.h
++++ b/PLUGINS/src/live/epgsearch.h
+@@ -341,7 +341,11 @@ public:
+ 	int TimerMode() const { return m_timerMode; }
+ 	bool operator<( SearchResult const& other ) const { return m_starttime <  other.m_starttime; }
+ 	const cEvent* GetEvent();
++#if VDRVERSNUM >= 20301
++	const cChannel* GetChannel() { LOCK_CHANNELS_READ; return Channels->GetByChannelID(m_channel); }
++#else
+ 	const cChannel* GetChannel() { return Channels.GetByChannelID(m_channel); }
++#endif
+ 
+ private:
+ 	int m_searchId;
+diff --git a/PLUGINS/src/live/pages/channels_widget.ecpp b/PLUGINS/src/live/pages/channels_widget.ecpp
+index fed7483..d4c06b4 100644
+--- a/PLUGINS/src/live/pages/channels_widget.ecpp
++++ b/PLUGINS/src/live/pages/channels_widget.ecpp
+@@ -20,12 +20,21 @@ bool logged_in(false);
+ if (!logged_in && LiveSetup().UseAuth()) return reply.redirect("login.html");
+ }>
+ <%cpp>
++#if VDRVERSNUM >= 20301
++	LOCK_CHANNELS_READ;
++	if (false)
++#else
+ 	ReadLock channelsLock( Channels );
+ 	if ( !channelsLock )
++#endif
+ 		throw HtmlError( tr("Couldn't aquire access to channels, please try again later.") );
+ </%cpp>
+ <select name="<$ name $>" id="<$ name $>" <{ reply.out() << ( !onchange.empty() ? "onchange=\""+onchange+"\"" : "" ); }>>
++%#if VDRVERSNUM >= 20301
++%	for ( cChannel *listChannel = (cChannel *)Channels->First(); listChannel; listChannel = (cChannel *)Channels->Next( listChannel ) ) {
++%#else
+ %	for ( cChannel *listChannel = Channels.First(); listChannel; listChannel = Channels.Next( listChannel ) ) {
++%#endif
+ %		if ( listChannel->GroupSep() || *listChannel->Name() == '\0' )
+ %			continue;
+ %
+diff --git a/PLUGINS/src/live/pages/edit_timer.ecpp b/PLUGINS/src/live/pages/edit_timer.ecpp
+index 0fe253c..8792c23 100644
+--- a/PLUGINS/src/live/pages/edit_timer.ecpp
++++ b/PLUGINS/src/live/pages/edit_timer.ecpp
+@@ -112,8 +112,13 @@ cTimer* timer;
+ 		if ( channelid.Valid() && eventid != 0 ) {
+ 			cerr << "grabbing event" << endl << endl;
+ 			cSchedulesLock schedLock;
++#if VDRVERSNUM >= 20301
++			LOCK_SCHEDULES_READ;
++			cSchedule const* schedule = Schedules->GetSchedule( channelid );
++#else
+ 			cSchedules const* schedules = cSchedules::Schedules( schedLock );
+ 			cSchedule const* schedule = schedules->GetSchedule( channelid );
++#endif
+ 
+ 			eventTimer.reset( new cTimer( schedule->GetEvent( eventid ) ) );
+ 		} else {
+diff --git a/PLUGINS/src/live/pages/epginfo.ecpp b/PLUGINS/src/live/pages/epginfo.ecpp
+index 743dcb2..77d2f91 100644
+--- a/PLUGINS/src/live/pages/epginfo.ecpp
++++ b/PLUGINS/src/live/pages/epginfo.ecpp
+@@ -73,6 +73,10 @@ using namespace std;
+ 		}
+ 		// check for event:
+ 		else if (epgid.compare(0, event.length(), event) == 0) {
++#if VDRVERSNUM >= 20301
++			LOCK_SCHEDULES_READ;
++			epgEvent = EpgEvents::CreateEpgInfo(epgid, Schedules);
++#else
+ 			schedulesLockPtr = SchedulesLockPtr(new SchedulesLock);
+ 			if (!schedulesLockPtr) {
+ 				throw HtmlError(tr("Error aquiring schedules lock"));
+@@ -82,6 +86,7 @@ using namespace std;
+ 				throw HtmlError(tr("Error aquiring schedules"));
+ 			}
+ 			epgEvent = EpgEvents::CreateEpgInfo(epgid, schedules);
++#endif
+ 		}
+ 		// check for aboutbox:
+ 		else if (epgid.compare(0, aboutbox.length(), aboutbox) == 0) {
+diff --git a/PLUGINS/src/live/pages/ibox.ecpp b/PLUGINS/src/live/pages/ibox.ecpp
+index 84c9615..5e714b0 100644
+--- a/PLUGINS/src/live/pages/ibox.ecpp
++++ b/PLUGINS/src/live/pages/ibox.ecpp
+@@ -50,7 +50,12 @@ TimerConflictNotifier timerNotifier();
+ 
+ 	if (NowReplaying) {
+ 		RecordingsManagerPtr recManager = LiveRecordingsManager();
++#if VDRVERSNUM >= 20301
++		LOCK_RECORDINGS_READ;
++		cRecording *recording = (cRecording *)Recordings->GetByName(NowReplaying);
++#else
+ 		cRecording *recording = Recordings.GetByName(NowReplaying);
++#endif
+ 		if (recording) {
+ 			epgEvent = EpgEvents::CreateEpgInfo(recManager->Md5Hash(recording),
+ 												recording,
+@@ -59,22 +64,40 @@ TimerConflictNotifier timerNotifier();
+ 	}
+ 	else {
+ 		string CHANNEL_STR("channel");
++#if VDRVERSNUM >= 20301
++		LOCK_CHANNELS_READ;
++#else
+ 		ReadLock channelsLock( Channels );
++#endif
+ 
+ 		if (cDevice::CurrentChannel()) {
+ 			const int SKIP_GAP = 1;
++#if VDRVERSNUM >= 20301
++			cChannel* Channel = (cChannel *)Channels->GetByNumber(cDevice::CurrentChannel());
++
++			cChannel* tmp = (cChannel *)Channels->GetByNumber(Channels->GetPrevNormal(cDevice::CurrentChannel()), -SKIP_GAP);
++#else
+ 			cChannel* Channel = Channels.GetByNumber(cDevice::CurrentChannel());
+ 
+ 			cChannel* tmp = Channels.GetByNumber(Channels.GetPrevNormal(cDevice::CurrentChannel()), -SKIP_GAP);
++#endif
+ 			if (tmp)
+ 				prev_chan = tmp->GetChannelID();
++#if VDRVERSNUM >= 20301
++			tmp = (cChannel *)Channels->GetByNumber(Channels->GetNextNormal(cDevice::CurrentChannel()), SKIP_GAP);
++#else
+ 			tmp = Channels.GetByNumber(Channels.GetNextNormal(cDevice::CurrentChannel()), SKIP_GAP);
++#endif
+ 			if (tmp)
+ 				next_chan = tmp->GetChannelID();
+ 
+ 			const string chanName(Channel->Name());
++#if VDRVERSNUM >= 20301
++			LOCK_SCHEDULES_READ;
++#else
+ 			cSchedulesLock schedulesLock;
+ 			const cSchedules* Schedules = cSchedules::Schedules(schedulesLock);
++#endif
+ 			const cSchedule *Schedule = Schedules->GetSchedule(Channel);
+ 
+ 			if (Schedule) {
+diff --git a/PLUGINS/src/live/pages/multischedule.ecpp b/PLUGINS/src/live/pages/multischedule.ecpp
+index d4fca9d..a1195fa 100644
+--- a/PLUGINS/src/live/pages/multischedule.ecpp
++++ b/PLUGINS/src/live/pages/multischedule.ecpp
+@@ -53,9 +53,13 @@ std::vector<time_t>      		times_start;
+ 	if (!logged_in && LiveSetup().UseAuth()) return reply.redirect("login.html");
+ 	pageTitle = tr("MultiSchedule");
+ 
++#if VDRVERSNUM >= 20301
++        LOCK_CHANNELS_READ;
++#else
+ 	ReadLock channelsLock( Channels );
+ 	if ( !channelsLock )
+ 		throw HtmlError( tr("Couldn't aquire access to channels, please try again later.") );
++#endif
+ 
+ #define MAX_CHANNELS 10
+ #define MAX_DAYS 3
+@@ -72,10 +76,18 @@ std::vector<time_t>      		times_start;
+             // setup default channel groups
+            int lastChannel = LiveSetup().GetLastChannel();
+            if ( lastChannel == 0 )
++#if VDRVERSNUM >= 20301
++               lastChannel = Channels->MaxNumber();
++#else
+                lastChannel = Channels.MaxNumber();
++#endif
+            std::stringstream groups;
+            int i = 0;
++#if VDRVERSNUM >= 20301
++           for (cChannel *channel = (cChannel *)Channels->First(); channel && (channel->Number() <= lastChannel); channel = (cChannel *)Channels->Next(channel))
++#else
+            for (cChannel *channel = Channels.First(); channel && (channel->Number() <= lastChannel); channel = Channels.Next(channel))
++#endif
+            {
+                if (channel->GroupSep())
+                    continue;
+@@ -118,7 +130,11 @@ std::vector<time_t>      		times_start;
+                     else
+                         thisGroup = "";
+                     int channel_no = lexical_cast< int > (thisChannel);
++#if VDRVERSNUM >= 20301
++                    cChannel* Channel = (cChannel *)Channels->GetByNumber( channel_no );
++#else
+                     cChannel* Channel = Channels.GetByNumber( channel_no );
++#endif
+                     if ( !Channel )
+                     {
+                         esyslog("Live: could not find channel no '%s'.", thisChannel.c_str() );
+@@ -262,9 +278,12 @@ std::vector<time_t>      		times_start;
+ 		<& menu active=("multischedule") component=("multischedule.channel_selection") &>
+ 		<div class="inhalt">
+ <%cpp>
++#if VDRVERSNUM >= 20301
++        LOCK_SCHEDULES_READ;
++#else
+ 	cSchedulesLock schedulesLock;
+ 	cSchedules const* schedules = cSchedules::Schedules( schedulesLock );
+-
++#endif
+ 	time_t now = time(NULL);
+ 	if ( time_para >= times_start.size() )
+ 	    time_para = times_start.size()-1;
+@@ -296,7 +315,11 @@ std::vector<time_t>      		times_start;
+ 
+ 		int chan = channel_groups_numbers[ channel ][ j ];
+ 
++#if VDRVERSNUM >= 20301
++		cChannel* Channel = (cChannel *)Channels->GetByNumber( chan );
++#else
+ 		cChannel* Channel = Channels.GetByNumber( chan );
++#endif
+ 		if ( ! Channel )
+ 			continue;
+ 		if ( Channel->GroupSep() || Channel->Name() == '\0' )
+@@ -304,7 +327,11 @@ std::vector<time_t>      		times_start;
+ 		channel_names[ j ] = Channel->Name();
+ 		channel_IDs[ j ] = Channel->GetChannelID();
+ 
++#if VDRVERSNUM >= 20301
++		cSchedule const* Schedule = Schedules->GetSchedule( (cChannel *)Channel );
++#else
+ 		cSchedule const* Schedule = schedules->GetSchedule( Channel );
++#endif
+ 		if ( ! Schedule )
+ 			continue;
+ 		for (const cEvent *Event = Schedule->Events()->First(); Event;
+diff --git a/PLUGINS/src/live/pages/recordings.ecpp b/PLUGINS/src/live/pages/recordings.ecpp
+index 7975438..1693e2a 100644
+--- a/PLUGINS/src/live/pages/recordings.ecpp
++++ b/PLUGINS/src/live/pages/recordings.ecpp
+@@ -153,7 +153,12 @@ if (!deleteResult.empty()) {
+ 		<div class="inhalt">
+ 			<div class="boxheader"><div><div><$ string(tr("List of recordings")) + " (" + diskinfo + ")" $></div></div></div>
+ <%cpp>
++#if VDRVERSNUM >= 20301
++			LOCK_RECORDINGS_READ;
++			if (Recordings->Count() == 0) { // Access VDRs global cRecordings Recordings instance.
++#else
+ 			if (Recordings.Count() == 0) { // Access VDRs global cRecordings Recordings instance.
++#endif
+ </%cpp>
+ 			<$ tr("No recordings found") $>
+ <%cpp>
+diff --git a/PLUGINS/src/live/pages/remote.ecpp b/PLUGINS/src/live/pages/remote.ecpp
+index 0f2b195..0006f45 100644
+--- a/PLUGINS/src/live/pages/remote.ecpp
++++ b/PLUGINS/src/live/pages/remote.ecpp
+@@ -31,20 +31,36 @@ if (!logged_in && LiveSetup().UseAuth()) return reply.redirect("login.html");
+ 
+ 	pageTitle = tr("Remote Control");
+ 
++#if VDRVERSNUM >= 20301
++        LOCK_CHANNELS_READ;
++#else
+ 	ReadLock channelsLock( Channels );
+ 	if ( !channelsLock )
+ 		throw HtmlError( tr("Couldn't aquire access to channels, please try again later.") );
++#endif
+ 
+ 	// cChannel* Channel; (see %request above)
+ 	if ( channel > 0 ) {
++#if VDRVERSNUM >= 20301
++		Channel = (cChannel *)Channels->GetByNumber( channel );
++#else
+ 		Channel = Channels.GetByNumber( channel );
++#endif
+ 	}
+ 	else {
+ 		if (cDevice::CurrentChannel()) {
++#if VDRVERSNUM >= 20301
++			Channel = (cChannel *)Channels->GetByNumber(cDevice::CurrentChannel());
++#else
+ 			Channel = Channels.GetByNumber(cDevice::CurrentChannel());
++#endif
+ 		}
+ 		else {
++#if VDRVERSNUM >= 20301
++			Channel = (cChannel *)Channels->Get( Channels->GetNextNormal( -1 ) );
++#else
+ 			Channel = Channels.Get( Channels.GetNextNormal( -1 ) );
++#endif
+ 		}
+ 	}
+ 	if ( Channel == 0 )
+diff --git a/PLUGINS/src/live/pages/schedule.ecpp b/PLUGINS/src/live/pages/schedule.ecpp
+index 8a77059..97d2b5b 100644
+--- a/PLUGINS/src/live/pages/schedule.ecpp
++++ b/PLUGINS/src/live/pages/schedule.ecpp
+@@ -31,29 +31,49 @@ if (!logged_in && LiveSetup().UseAuth()) return reply.redirect("login.html");
+ <%cpp>
+ 	pageTitle = trVDR("Schedule");
+ 
++#if VDRVERSNUM >= 20301
++        LOCK_SCHEDULES_READ;
++        LOCK_CHANNELS_READ;
++#else
+ 	cSchedulesLock schedulesLock;
+ 	cSchedules const* schedules = cSchedules::Schedules( schedulesLock );
+-
+ 	ReadLock channelsLock( Channels );
+ 	if ( !channelsLock )
+ 		throw HtmlError( tr("Couldn't aquire access to channels, please try again later.") );
++#endif
+ 
+ 	// cChannel* Channel; (see %request above)
+ 	if ( channel > 0 ) {
++#if VDRVERSNUM >= 20301
++		Channel = (cChannel *)Channels->GetByNumber( channel );
++#else
+ 		Channel = Channels.GetByNumber( channel );
++#endif
+ 	}
+ 	else {
+ 		if (cDevice::CurrentChannel()) {
++#if VDRVERSNUM >= 20301
++			Channel = (cChannel *)Channels->GetByNumber(cDevice::CurrentChannel());
++#else
+ 			Channel = Channels.GetByNumber(cDevice::CurrentChannel());
++#endif
+ 		}
+ 		else {
++#if VDRVERSNUM >= 20301
++			Channel = (cChannel *)Channels->Get( Channels->GetNextNormal( -1 ) );
++#else
+ 			Channel = Channels.Get( Channels.GetNextNormal( -1 ) );
++#endif
+ 		}
+ 	}
+ 	if ( Channel == 0 )
+ 		throw HtmlError( tr("Couldn't find channel or no channels available. Maybe you mistyped your request?") );
+ 
++#if VDRVERSNUM >= 20301
++	cSchedule const* Schedule = Schedules->GetSchedule( (const cChannel *)Channel );
++#else
+ 	cSchedule const* Schedule = schedules->GetSchedule( Channel );
++#endif
+ </%cpp>
+ <& pageelems.doc_type &>
+ <html>
+@@ -81,7 +101,11 @@ if (!logged_in && LiveSetup().UseAuth()) return reply.redirect("login.html");
+ 		time_t now = time(NULL) - ::Setup.EPGLinger * 60;
+ 		// tChannelID channel_id(Channel->GetChannelID());
+ 		// int evntNr = 0;
++#if VDRVERSNUM >= 20301
++		for (const cEvent *Event = (cEvent *)Schedule->Events()->First(); Event; Event = (cEvent *)Schedule->Events()->Next(Event)) {
++#else
+ 		for (const cEvent *Event = Schedule->Events()->First(); Event; Event = Schedule->Events()->Next(Event)) {
++#endif
+ 			if (Event->EndTime() <= now && Event != PresentEvent)
+ 				continue;
+ 
+@@ -99,7 +123,11 @@ if (!logged_in && LiveSetup().UseAuth()) return reply.redirect("login.html");
+ 			bool truncated = false;
+ 			bool lastEventCurrentDay = false;
+ 			{
++#if VDRVERSNUM >= 20301
++				cEvent* NextEvent = (cEvent *)Schedule->Events()->Next(Event);
++#else
+ 				cEvent* NextEvent = Schedule->Events()->Next(Event);
++#endif
+ 				if (!NextEvent) {
+ 					lastEventCurrentDay = true;
+ 				}
+diff --git a/PLUGINS/src/live/pages/searchresults.ecpp b/PLUGINS/src/live/pages/searchresults.ecpp
+index 64ae350..695a7cd 100644
+--- a/PLUGINS/src/live/pages/searchresults.ecpp
++++ b/PLUGINS/src/live/pages/searchresults.ecpp
+@@ -60,8 +60,15 @@ bool logged_in(false);
+ <%cpp>
+ 				string current_day = "";
+ 
++#if VDRVERSNUM >= 20301
++				LOCK_CHANNELS_READ;
++#endif
+ 				for (SearchResults::iterator result = results.begin(); result != results.end(); ++result) {
++#if VDRVERSNUM >= 20301
++				        cChannel* channel = (cChannel *)Channels->GetByChannelID(result->Channel());
++#else
+ 				        cChannel* channel = Channels.GetByChannelID(result->Channel());
++#endif
+ 					if (!channel) continue;
+ 					string channelname = channel->Name();
+ 					int channelnr = channel->Number();
+diff --git a/PLUGINS/src/live/pages/timerconflicts.ecpp b/PLUGINS/src/live/pages/timerconflicts.ecpp
+index c7e18ea..83d139b 100644
+--- a/PLUGINS/src/live/pages/timerconflicts.ecpp
++++ b/PLUGINS/src/live/pages/timerconflicts.ecpp
+@@ -46,6 +46,10 @@ if (!logged_in && LiveSetup().UseAuth()) return reply.redirect("login.html");
+ %			} else {
+ 			<table class="listing" cellspacing="0" cellpadding="0">
+ <%cpp>
++#if VDRVERSNUM >= 20301
++				LOCK_TIMERS_READ;
++				LOCK_SCHEDULES_READ;
++#endif
+ 				for (TimerConflicts::iterator conflict = timerConflicts.begin(); conflict != timerConflicts.end(); ++conflict) {
+ 					const std::list< TimerInConflict >& conflTimers = conflict->ConflictingTimers();
+ 					for (std::list< TimerInConflict >::const_iterator confltimer = conflTimers.begin(); confltimer != conflTimers.end(); ++confltimer) {
+@@ -69,7 +73,11 @@ if (!logged_in && LiveSetup().UseAuth()) return reply.redirect("login.html");
+ 						</tr>
+ <%cpp>
+ 						for (std::list<int>::const_iterator timerIndex = confltimer->concurrentTimerIndices.begin(); timerIndex != confltimer->concurrentTimerIndices.end(); ++timerIndex) {
++#if VDRVERSNUM >= 20301
++							cTimer* timer = (cTimer *)Timers->Get(*timerIndex-1);
++#else
+ 							cTimer* timer = Timers.Get(*timerIndex-1);
++#endif
+ 							if (!timer) continue;
+ 
+ 							std::list< int >::const_iterator nexttimerIndex = timerIndex;
+@@ -90,7 +98,11 @@ if (!logged_in && LiveSetup().UseAuth()) return reply.redirect("login.html");
+ 	        		        EpgInfoPtr epgEvent;
+ 							string longDescription;
+ 							string title;
++#if VDRVERSNUM >= 20301
++							if (!timer->Event()) timer->SetEventFromSchedule(Schedules);
++#else
+ 							if (!timer->Event()) timer->SetEventFromSchedule();
++#endif
+ 							if (timer->Event()) {
+ 								epgEvent = EpgEvents::CreateEpgInfo(timer->Channel(), timer->Event());
+ 								longDescription = StringEscapeAndBreak(SortedTimers::GetTimerInfo(*timer)) + "<hr>"
+diff --git a/PLUGINS/src/live/pages/timers.ecpp b/PLUGINS/src/live/pages/timers.ecpp
+index 66b5235..b294c11 100644
+--- a/PLUGINS/src/live/pages/timers.ecpp
++++ b/PLUGINS/src/live/pages/timers.ecpp
+@@ -77,10 +77,17 @@ static const size_t maximumDescriptionLength = 300;
+ 			<table class="listing" cellspacing="0" cellpadding="0">
+ <%cpp>
+ 				// output of the timer list:
++#if VDRVERSNUM >= 20301
++                                LOCK_SCHEDULES_READ;
++#endif
+ 				for (SortedTimers::iterator timer = timers.begin(); timer != timers.end(); ++timer) {
+ 				    EpgInfoPtr epgEvent;
+ 					string longDescription;
++#if VDRVERSNUM >= 20301
++					if (!timer->Event()) timer->SetEventFromSchedule(Schedules);
++#else
+ 					if (!timer->Event()) timer->SetEventFromSchedule();
++#endif
+ 					if (timer->Event())
+ 					{
+ 						epgEvent = EpgEvents::CreateEpgInfo(timer->Channel(), timer->Event());
+diff --git a/PLUGINS/src/live/pages/vlc.ecpp b/PLUGINS/src/live/pages/vlc.ecpp
+index 480e949..881958c 100644
+--- a/PLUGINS/src/live/pages/vlc.ecpp
++++ b/PLUGINS/src/live/pages/vlc.ecpp
+@@ -34,12 +34,17 @@ using namespace vdrlive;
+ 	Channel = 0;
+ 	if (recid.empty()) {
+ 		pageTitle = tr("VLC: live video stream");
++#if VDRVERSNUM >= 20301
++		LOCK_CHANNELS_READ;
++		Channel = (cChannel *)Channels->GetByChannelID(channel);
++#else
+ 		ReadLock channelsLock(Channels);
+ 
+ 		if (!channelsLock) {
+ 			throw HtmlError(tr("Couldn't aquire access to channels, please try again later."));
+ 		}
+ 		Channel = Channels.GetByChannelID(channel);
++#endif
+ 		if (Channel == 0) {
+ 			throw HtmlError( tr("Couldn't find channel or no channels available. Maybe you mistyped your request?") );
+ 		}
+diff --git a/PLUGINS/src/live/pages/whats_on.ecpp b/PLUGINS/src/live/pages/whats_on.ecpp
+index 8232875..f9a66c3 100644
+--- a/PLUGINS/src/live/pages/whats_on.ecpp
++++ b/PLUGINS/src/live/pages/whats_on.ecpp
+@@ -38,8 +38,12 @@ string current_displaytime;
+ if (!logged_in && LiveSetup().UseAuth()) return reply.redirect("login.html");
+ 
+ 
++#if VDRVERSNUM >= 20301
++LOCK_SCHEDULES_READ;
++#else
+ cSchedulesLock schedulesLock;
+ const cSchedules* Schedules = cSchedules::Schedules(schedulesLock);
++#endif
+ 
+ string head;
+ time_t seektime = 0;
+@@ -124,10 +128,19 @@ if (type == "now") {
+ 	// collect the broadcasts
+ 	if (type != "favs")
+ 	{
++#if VDRVERSNUM >= 20301
++                LOCK_CHANNELS_READ;
++                if (true) {
++#else
+ 		ReadLock channelsLock( Channels );
+ 		if (channelsLock) {
++#endif
+ 			// int evntNr = 0;
++#if VDRVERSNUM >= 20301
++			for (cChannel *Channel = (cChannel *)Channels->First(); Channel && Channel->Number() <= LiveSetup().GetLastChannel(); Channel = (cChannel *)Channels->Next(Channel)) {
++#else
+ 			for (cChannel *Channel = Channels.First(); Channel && Channel->Number() <= LiveSetup().GetLastChannel(); Channel = Channels.Next(Channel)) {
++#endif
+ 				if (Channel->GroupSep()) {
+ 					continue;
+ 				}
+diff --git a/PLUGINS/src/live/recman.cpp b/PLUGINS/src/live/recman.cpp
+index d5d9f29..316c99d 100644
+--- a/PLUGINS/src/live/recman.cpp
++++ b/PLUGINS/src/live/recman.cpp
+@@ -44,8 +44,12 @@ namespace vdrlive {
+ 	// themselfs. This way the use of LIVE::recordings is straight
+ 	// forward and does hide the locking needs from the user.
+ 
++#if VDRVERSNUM >= 20301
++	RecordingsManager::RecordingsManager()
++#else
+ 	RecordingsManager::RecordingsManager() :
+ 		m_recordingsLock(&Recordings)
++#endif
+ 	{
+ 	}
+ 
+@@ -93,7 +97,12 @@ namespace vdrlive {
+ 	cRecording const * RecordingsManager::GetByMd5Hash(string const & hash) const
+ 	{
+ 		if (!hash.empty()) {
++#if VDRVERSNUM >= 20301
++                        LOCK_RECORDINGS_READ;
++			for (cRecording* rec = (cRecording *)Recordings->First(); rec; rec = (cRecording *)Recordings->Next(rec)) {
++#else
+ 			for (cRecording* rec = Recordings.First(); rec; rec = Recordings.Next(rec)) {
++#endif
+ 				if (hash == Md5Hash(rec))
+ 					return rec;
+ 			}
+@@ -123,9 +132,16 @@ namespace vdrlive {
+ 			return false;
+ 		}
+ 
++#if VDRVERSNUM >= 20301
++		LOCK_RECORDINGS_WRITE;
++		if (!copy)
++			Recordings->DelByName(oldname.c_str());
++		Recordings->AddByName(newname.c_str());
++#else
+ 		if (!copy)
+ 			Recordings.DelByName(oldname.c_str());
+ 		Recordings.AddByName(newname.c_str());
++#endif
+ 		cRecordingUserCommand::InvokeCommand(*cString::sprintf("rename \"%s\"", *strescape(oldname.c_str(), "\\\"$'")), newname.c_str());
+ 
+ 		return true;
+@@ -167,7 +183,12 @@ namespace vdrlive {
+ 
+ 		string name(recording->FileName());
+ 		const_cast<cRecording *>(recording)->Delete();
++#if VDRVERSNUM >= 20301
++                LOCK_RECORDINGS_WRITE;
++		Recordings->DelByName(name.c_str());
++#else
+ 		Recordings.DelByName(name.c_str());
++#endif
+ 	}
+ 
+ 	int RecordingsManager::GetArchiveType(cRecording const * recording)
+@@ -252,7 +273,11 @@ namespace vdrlive {
+ 
+ 		// StateChanged must be executed every time, so not part of
+ 		// the short cut evaluation in the if statement below.
++#if VDRVERSNUM >= 20301
++		bool stateChanged = true;
++#else
+ 		bool stateChanged = Recordings.StateChanged(m_recordingsState);
++#endif
+ 		if (stateChanged || (!m_recTree) || (!m_recList) || (!m_recDirs)) {
+ 			if (stateChanged) {
+ 				m_recTree.reset();
+@@ -409,7 +434,12 @@ namespace vdrlive {
+ 		m_root(new RecordingsItemDir("", 0, RecordingsItemPtr()))
+ 	{
+ 		// esyslog("DH: ****** RecordingsTree::RecordingsTree() ********");
++#if VDRVERSNUM >= 20301
++                LOCK_RECORDINGS_READ;
++		for (cRecording* recording = (cRecording *)Recordings->First(); recording; recording = (cRecording *)Recordings->Next(recording)) {
++#else
+ 		for (cRecording* recording = Recordings.First(); recording; recording = Recordings.Next(recording)) {
++#endif
+ 			if (m_maxLevel < recording->HierarchyLevels()) {
+ 				m_maxLevel = recording->HierarchyLevels();
+ 			}
+@@ -639,7 +669,12 @@ namespace vdrlive {
+ 		for (cNestedItem* item = Folders.First(); item; item = Folders.Next(item)) { // add folders.conf entries
+ 			InjectFoldersConf(item);
+ 		}
++#if VDRVERSNUM >= 20301
++                LOCK_RECORDINGS_READ;
++		for (cRecording* recording = (cRecording *)Recordings->First(); recording; recording = (cRecording*)Recordings->Next(recording)) {
++#else
+ 		for (cRecording* recording = Recordings.First(); recording; recording = Recordings.Next(recording)) {
++#endif
+ 			string name = recording->Name();
+ 			size_t found = name.find_last_of("~");
+ 
+diff --git a/PLUGINS/src/live/tasks.cpp b/PLUGINS/src/live/tasks.cpp
+index 5f73ba6..c381382 100644
+--- a/PLUGINS/src/live/tasks.cpp
++++ b/PLUGINS/src/live/tasks.cpp
+@@ -34,14 +34,23 @@ StickyTask::~StickyTask()
+ 
+ void SwitchChannelTask::Action()
+ {
++#if VDRVERSNUM >= 20301
++	LOCK_CHANNELS_READ;
++	cChannel* channel = (cChannel *)Channels->GetByChannelID( m_channel );
++#else
+ 	ReadLock lock( Channels );
+ 	cChannel* channel = Channels.GetByChannelID( m_channel );
++#endif
+ 	if ( channel == 0 ) {
+ 		SetError( tr("Couldn't find channel or no channels available.") );
+ 		return;
+ 	}
+ 
++#if VDRVERSNUM >= 20301
++	if ( !Channels->SwitchTo( channel->Number() ) )
++#else
+ 	if ( !Channels.SwitchTo( channel->Number() ) )
++#endif
+ 		SetError( tr("Couldn't switch to channel.") );
+ }
+ 
+diff --git a/PLUGINS/src/live/timers.cpp b/PLUGINS/src/live/timers.cpp
+index 3bcbe1b..ddaf592 100644
+--- a/PLUGINS/src/live/timers.cpp
++++ b/PLUGINS/src/live/timers.cpp
+@@ -41,7 +41,12 @@ namespace vdrlive {
+ 			return 0;
+ 		}
+ 
++#if VDRVERSNUM >= 20301
++                LOCK_CHANNELS_READ;
++		cChannel* channel = (cChannel *)Channels->GetByChannelID( tChannelID::FromString( parts[0].c_str() ) );
++#else
+ 		cChannel* channel = Channels.GetByChannelID( tChannelID::FromString( parts[0].c_str() ) );
++#endif
+ 		if ( channel == 0 ) {
+ 			esyslog("GetByTimerId: no channel %s", parts[0].c_str() );
+ 			return 0;
+@@ -88,9 +93,16 @@ namespace vdrlive {
+ 		// dsyslog("live reloading timers");
+ 
+ 		clear();
++#if VDRVERSNUM >= 20301
++                LOCK_TIMERS_READ;
++		for ( cTimer* timer = (cTimer *)Timers->First(); timer; timer = (cTimer *)Timers->Next( timer ) ) {
++			push_back( *timer );
++		}
++#else
+ 		for ( cTimer* timer = Timers.First(); timer; timer = Timers.Next( timer ) ) {
+ 			push_back( *timer );
+ 		}
++#endif
+ 		sort();
+ 	}
+ 
+@@ -231,26 +243,43 @@ namespace vdrlive {
+ 			return;
+ 		}
+ 
++#if VDRVERSNUM >= 20301
++		LOCK_TIMERS_WRITE;
++		const cTimer *checkTimer = Timers->GetTimer( newTimer.get() );
++#else
+ 		cTimer* checkTimer = Timers.GetTimer( newTimer.get() );
++#endif
+ 		if ( checkTimer ) {
+ 			StoreError( timerData, tr("Timer already defined") );
+ 			return;
+ 		}
+ 
++#if VDRVERSNUM >= 20301
++		Timers->Add( newTimer.get() );
++		Timers->SetModified();
++#else
+ 		Timers.Add( newTimer.get() );
+ 		Timers.SetModified();
++#endif
+ 		isyslog( "live timer %s added", *newTimer->ToDescr() );
+ 		newTimer.release();
+ 	}
+ 
+ 	void TimerManager::DoUpdateTimer( TimerPair& timerData )
+ 	{
++#if VDRVERSNUM < 20301
+ 		if ( Timers.BeingEdited() ) {
+ 			StoreError( timerData, tr("Timers are being edited - try again later") );
+ 			return;
+ 		}
++#endif
+ 
++#if VDRVERSNUM >= 20301
++		LOCK_TIMERS_WRITE;
++		cTimer* oldTimer = (cTimer *)Timers->GetTimer( timerData.first );
++#else
+ 		cTimer* oldTimer = Timers.GetTimer( timerData.first );
++#endif
+ 		if ( oldTimer == 0 ) {
+ 			StoreError( timerData, tr("Timer not defined") );
+ 			return;
+@@ -263,18 +292,29 @@ namespace vdrlive {
+ 		}
+ 
+ 		*oldTimer = copy;
++#if VDRVERSNUM >= 20301
++		Timers->SetModified();
++#else
+ 		Timers.SetModified();
++#endif
+ 		isyslog("live timer %s modified (%s)", *oldTimer->ToDescr(), oldTimer->HasFlags(tfActive) ? "active" : "inactive");
+ 	}
+ 
+ 	void TimerManager::DoDeleteTimer( TimerPair& timerData )
+ 	{
++#if VDRVERSNUM < 20301
+ 		if ( Timers.BeingEdited() ) {
+ 			StoreError( timerData, tr("Timers are being edited - try again later") );
+ 			return;
+ 		}
++#endif
+ 
++#if VDRVERSNUM >= 20301
++                LOCK_TIMERS_WRITE;
++		cTimer* oldTimer = (cTimer *)Timers->GetTimer( timerData.first );
++#else
+ 		cTimer* oldTimer = Timers.GetTimer( timerData.first );
++#endif
+ 		if ( oldTimer == 0 ) {
+ 			StoreError( timerData, tr("Timer not defined") );
+ 			return;
+@@ -283,28 +323,49 @@ namespace vdrlive {
+ 		cTimer copy = *oldTimer;
+ 		if ( oldTimer->Recording() ) {
+ 			oldTimer->Skip();
++#if VDRVERSNUM >= 20301
++			cRecordControls::Process( Timers, time( 0 ) );
++#else
+ 			cRecordControls::Process( time( 0 ) );
++#endif
+ 		}
++#if VDRVERSNUM >= 20301
++		Timers->Del( oldTimer );
++		Timers->SetModified();
++#else
+ 		Timers.Del( oldTimer );
+ 		Timers.SetModified();
++#endif
+ 		isyslog("live timer %s deleted", *copy.ToDescr());
+ 	}
+ 
+ 	void TimerManager::DoToggleTimer( TimerPair& timerData )
+ 	{
++#if VDRVERSNUM < 20301
+ 		if ( Timers.BeingEdited() ) {
+ 			StoreError( timerData, tr("Timers are being edited - try again later") );
+ 			return;
+ 		}
++#endif
+ 
++#if VDRVERSNUM >= 20301
++                LOCK_TIMERS_WRITE;
++		cTimer* toggleTimer = (cTimer *)Timers->GetTimer( timerData.first );
++#else
+ 		cTimer* toggleTimer = Timers.GetTimer( timerData.first );
++#endif
+ 		if ( toggleTimer == 0 ) {
+ 			StoreError( timerData, tr("Timer not defined") );
+ 			return;
+ 		}
+ 
++#if VDRVERSNUM >= 20301
++		toggleTimer->OnOff();
++		Timers->SetModified();
++#else
+ 		toggleTimer->OnOff();
+ 		Timers.SetModified();
++#endif
+ 		isyslog("live timer %s toggled %s", *toggleTimer->ToDescr(), toggleTimer->HasFlags(tfActive) ? "on" : "off");
+ 	}
+ 
+@@ -330,10 +391,17 @@ namespace vdrlive {
+ 		cMutexLock timersLock( &LiveTimerManager() );
+ 		SortedTimers& timers = LiveTimerManager().GetTimers();
+ 
++#if VDRVERSNUM >= 20301
++                LOCK_SCHEDULES_READ;
++#endif
+ 		for ( SortedTimers::iterator timer = timers.begin(); timer != timers.end(); ++timer )
+ 			if (timer->Channel() && timer->Channel()->GetChannelID() == channelid)
+ 			{
+-				if (!timer->Event()) timer->SetEventFromSchedule();
++#if VDRVERSNUM >= 20301
++                                if (!timer->Event()) timer->SetEventFromSchedule(Schedules);
++#else
++                                if (!timer->Event()) timer->SetEventFromSchedule();
++#endif
+ 				if (timer->Event() && timer->Event()->EventID() == eventid)
+ 					return &*timer;
+ 			}
+diff --git a/PLUGINS/src/live/timers.h b/PLUGINS/src/live/timers.h
+index 4ad8a7f..10395ef 100644
+--- a/PLUGINS/src/live/timers.h
++++ b/PLUGINS/src/live/timers.h
+@@ -23,7 +23,11 @@ namespace vdrlive {
+ 			static std::string EncodeDomId(std::string const& timerid);
+ 			static std::string DecodeDomId(std::string const &timerDomId);
+ 
++#if VDRVERSNUM >= 20301
++			bool Modified() { return true; }
++#else
+ 			bool Modified() { return Timers.Modified(m_state); }
++#endif
+ 
+ 			static std::string GetTimerDays(cTimer const& timer);
+ 			static std::string GetTimerInfo(cTimer const& timer);

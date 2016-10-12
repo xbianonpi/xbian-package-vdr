@@ -3,7 +3,7 @@
 
     FILE="$XBIANARCHDIR/working/debian/vdr-plugin-$PLUGIN.changelog"
     FOLDER="$XBIANARCHDIR/working/PLUGINS/src/$PLUGIN"
-    cd $FOLDER
+    [ -d "$FOLDER" ] && cd $FOLDER || exit 0
 
     ver="$(grep '\#define LIVEVERSION ' setup.h | awk '{ print $3 }' | sed -e 's/[";]//g')-git.$(git show --pretty=format:"%cd" --date=short --quiet | tr -d '-' 2>/dev/null)"
     echo "Setting version to $ver"

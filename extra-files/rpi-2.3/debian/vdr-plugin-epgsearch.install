@@ -1,0 +1,27 @@
+usr/lib/vdr/plugins/libvdr-epgsearch.so.*
+usr/lib/vdr/plugins/libvdr-epgsearchonly.so.*
+usr/lib/vdr/plugins/libvdr-conflictcheckonly.so.*
+usr/lib/vdr/plugins/libvdr-quickepgsearch.so.*
+
+debian/conf/epgsearchcmds.conf       etc/vdr/plugins/epgsearch/
+debian/conf/epgsearchmenu.conf       etc/vdr/plugins/epgsearch/
+debian/conf/epgsearchcats.conf       etc/vdr/plugins/epgsearch/
+
+debian/epg2taste.sh             usr/share/vdr-plugin-epgsearch/
+debian/rememberevent.sh         usr/share/vdr-plugin-epgsearch/
+
+var/lib/vdr/plugins/epgsearch/epgsearchupdmail.templ   etc/vdr/plugins/epgsearch/
+var/lib/vdr/plugins/epgsearch/epgsearchconflmail.templ etc/vdr/plugins/epgsearch/
+var/lib/vdr/plugins/epgsearch/epgsearchmenu.conf       etc/vdr/plugins/epgsearch/
+
+var/lib/vdr/plugins/epgsearch/epgsearchcats.conf-tvm2vdr-hoerzu  usr/share/doc/vdr-plugin-epgsearch/examples/
+var/lib/vdr/plugins/epgsearch/epgsearchcats.conf-tvm2vdr-tvmovie usr/share/doc/vdr-plugin-epgsearch/examples/
+var/lib/vdr/plugins/epgsearch/epgsearchupdmail-html.templ        usr/share/doc/vdr-plugin-epgsearch/examples/
+var/lib/vdr/plugins/epgsearch/epgsearchcats.conf-epgdata         usr/share/doc/vdr-plugin-epgsearch/examples/
+
+usr/share/locale/*/*/vdr-epgsearch.*
+
+debian/conf/epgsearch.conf         etc/vdr/conf.avail/
+debian/conf/conflictcheckonly.conf etc/vdr/conf.avail/
+debian/conf/epgsearchonly.conf     etc/vdr/conf.avail/
+debian/conf/quickepgsearch.conf    etc/vdr/conf.avail/
