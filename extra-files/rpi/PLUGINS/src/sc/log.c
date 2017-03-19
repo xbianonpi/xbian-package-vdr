@@ -45,7 +45,7 @@ static const struct LogModule lm_general = {
   };
 
 static const struct LogModule *mods[LMOD_SUP] = { &lm_general };
-static int config[LMOD_SUP] = { LMOD_ENABLE|L_GEN_ALL|LMOD_CFG_VALID };
+static unsigned int config[LMOD_SUP] = { LMOD_ENABLE|L_GEN_ALL|LMOD_CFG_VALID };
 static int cmask[LMOD_SUP]  = { LMOD_ENABLE|L_GEN_ALL };
 static cMutex logfileMutex;
 static FILE *logfile=0;
