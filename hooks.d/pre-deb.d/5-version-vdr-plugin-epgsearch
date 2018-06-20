@@ -1,5 +1,6 @@
 (
     PLUGIN="epgsearch"
+    VDRVERSION="$(grep "#define.*VDRVERSION" config.h | awk '{print $3}'|tr -d '"; ')"
 
     FILE="$XBIANARCHDIR/working/debian/vdr-plugin-$PLUGIN.changelog"
     FOLDER="$XBIANARCHDIR/working/PLUGINS/src/$PLUGIN"
@@ -9,7 +10,7 @@
     echo "Setting version to $ver"
 
     sed -i "0,/vdr-plugin-$PLUGIN/s//vdr/" $FILE; \
-    sed -i "0,/(.*)/s//($ver~xbian)/" $FILE; \
+    sed -i "0,/(.*)/s//($VDRVERSION-$ver~xbian)/" $FILE; \
     sed -i "0,/trusty/s//$config_platform-$(lsb_release -sc)/" $FILE; \
     sed -i "0,/rpi-jessie/s//$config_platform-$(lsb_release -sc)/" $FILE;
 )

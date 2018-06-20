@@ -1,13 +1,14 @@
 
 (
     FILE="debian/vdr-plugin-sc.changelog"
+    VDRVERSION="$(grep "#define.*VDRVERSION" config.h | awk '{print $3}'|tr -d '"; ')"
 
     [ ! -e PLUGINS/src/sc/version.c ] && exit 0
 
     ver="$(grep ScVersion PLUGINS/src/sc/version.c | awk -F'=' '{print $2}' | awk -F'~' '{print $1}'|tr -d '"; ')"
     echo "Setting version to $ver"
     sed -i "0,/vdr-plugin-sc/s//vdr/" $FILE; \
-    sed -i "0,/(.*)/s//($ver~xbian)/" $FILE; \
+    sed -i "0,/(.*)/s//($VDRVERSION-$ver~xbian)/" $FILE; \
     sed -i "0,/trusty/s//$config_platform-$(lsb_release -sc)/" $FILE; \
     sed -i "0,/rpi-jessie/s//$config_platform-$(lsb_release -sc)/" $FILE;
 )

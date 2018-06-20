@@ -1,0 +1,3 @@
+
+[ -z "$config_deb_version" ] && config_deb_version=1 || config_deb_version=$((config_deb_version+1))
+[ -e ../config_pkgver ] && sed -i "s%config_deb_version=.*%config_deb_version=$config_deb_version%" ../config_pkgver || :
