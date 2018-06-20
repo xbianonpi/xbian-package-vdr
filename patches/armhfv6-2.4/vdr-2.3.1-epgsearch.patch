@@ -1,0 +1,11 @@
+--- a/menu.c-orig	2015-09-14 15:22:49.000000000 +0200
++++ b/menu.c	2016-10-02 17:21:42.341855542 +0200
+@@ -1068,7 +1068,7 @@
+   return false; // convenience return code
+ }
+ 
+-static bool HandleRemoteModifications(cTimer *NewTimer, cTimer *OldTimer = NULL)
++bool HandleRemoteModifications(cTimer *NewTimer, cTimer *OldTimer = NULL)
+ {
+   cStringList Response;
+   if (!OldTimer || OldTimer->Local() || !OldTimer->Id()) {

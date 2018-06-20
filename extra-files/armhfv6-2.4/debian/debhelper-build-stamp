@@ -1,0 +1,14 @@
+vdr
+vdr-dev
+vdr-dbg
+vdr-plugin-examples
+vdr-plugin-dynamite
+vdr-plugin-dynamite-dbg
+vdr-plugin-vnsiserver
+vdr-plugin-vnsiserver-dbg
+vdr-plugin-dvbapi
+vdr-plugin-dvbapi-dbg
+vdr-plugin-streamdev-client
+vdr-plugin-streamdev-server
+vdr-plugin-streamdev-server-dbg
+vdr-plugin-streamdev-client-dbg

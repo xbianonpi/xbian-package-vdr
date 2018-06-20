@@ -1,0 +1,10 @@
+#! /bin/sh
+set -e
+
+if [ "$1" = "configure" ]; then
+    # Change owner of directory for variable state information files
+    chown vdr:vdr /var/lib/vdr/plugins/epgsearch || true
+    ! [ -e /etc/vdr/conf.d/epgsearch.conf ] && ln -t /etc/vdr/conf.d -s ../conf.avail/epgsearch.conf || :
+fi
+
+#DEBHELPER#

@@ -1,0 +1,5 @@
+vdr (1.0.0-20140419-216-1~xbian) rpi-jessie; urgency=medium
+
+  * initial build
+
+ -- x y <x.y@z.com>  Sat, 19 Apr 2014 21:27:21 +0200

@@ -1,0 +1,3 @@
+config_build_env=schroot -c armhf${config_os_version} -p --
+config_source_addr=ftp://ftp.tvdr.de/vdr/vdr-2.4.0.tar.bz2
+config_build_plugins=
