@@ -154,8 +154,10 @@ Description: debugging symbols for vdr-plugin-vnsiserver
  This package contains only the debugging symbols for vdr-plugin-vnsiserver
 
 Package: vdr-plugin-sc
+Conflicts: vdr-plugin-dvbapi
+Replaces: vdr-plugin-dvbapi
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}
 Description: A software emulated CAM
  The plugin decrypts the scrambling codewords from the incomming ECM stream. The
  actual descrambling of the video stream is either done by the ECD chip on
@@ -173,57 +175,57 @@ Description: debugging symbols for vdr-plugin-sc
 
 Package: vdr-plugin-sc-cardclient
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: Cardclient system for vdr-plugin-sc
 
 Package: vdr-plugin-sc-conax
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: Conax system for vdr-plugin-sc
 
 Package: vdr-plugin-sc-constcw
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: Constcw system for vdr-plugin-sc
 
 Package: vdr-plugin-sc-cryptoworks
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: Cryptoworks system for vdr-plugin-sc
 
 Package: vdr-plugin-sc-irdeto
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: Irdeto system for vdr-plugin-sc
 
 Package: vdr-plugin-sc-nagra
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: Nagra system for vdr-plugin-sc
 
 Package: vdr-plugin-sc-nds
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: NDS system for vdr-plugin-sc
 
 Package: vdr-plugin-sc-seca
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: Seca system for vdr-plugin-sc
 
 Package: vdr-plugin-sc-shl
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: SHL system for vdr-plugin-sc
 
 Package: vdr-plugin-sc-viaccess
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: Viaccess system for vdr-plugin-sc
 
 Package: vdr-plugin-sc-videoguard2
 Architecture: any
-Depends: ${shlibs:Depends}, vdr-plugin-sc ${vdr:Depends}
+Depends: ${shlibs:Depends}, vdr-plugin-sc, ${vdr:Depends}
 Description: Videoguard2 system for vdr-plugin-sc
 
 Package: vdr-plugin-dvbapi
