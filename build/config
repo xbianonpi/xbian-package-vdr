@@ -1,8 +1,5 @@
 config_source_type=tar
 config_source_addr=ftp://ftp.tvdr.de/vdr/vdr-2.2.0.tar.bz2
-config_source_keep=yes
-config_source_reset=yes
-config_source_refresh=yes
 config_source_prepare=
 config_source_branch=master
 config_build_make=debian/rules
