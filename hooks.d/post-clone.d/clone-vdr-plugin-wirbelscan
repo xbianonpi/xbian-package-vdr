@@ -13,8 +13,8 @@ if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw wirbe
         FILE=vdr-plugin-wirbelscan_0.0.9~20150111.orig.tar.gz
         wget https://launchpad.net/~yavdr/+archive/ubuntu/unstable-vdr/+sourcefiles/vdr-plugin-wirbelscan/0.0.9~20150111-0yavdr1~precise/$FILE
     else
-        FILE=vdr-wirbelscan-dev-2017.06.04.tgz
-        wget http://wirbel.htpc-forum.de/wirbelscan/$FILE
+        FILE=vdr-wirbelscan-2020.05.10.tgz
+        wget https://www.gen2vdr.de/wirbel/wirbelscan/$FILE
     fi
     tar xf $FILE -C $FOLDER/ --strip-components 1
     rm -f $FILE
@@ -23,7 +23,7 @@ if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw wirbe
     [ -e $FOLDER ] && rm -rf FOLDER
     mkdir $FOLDER
 
-    wget http://wirbel.htpc-forum.de/wirbelscancontrol/vdr-wirbelscancontrol-0.0.2.tgz
+    wget https://www.gen2vdr.de/wirbel/wirbelscancontrol/vdr-wirbelscancontrol-0.0.2.tgz
     tar xf vdr-wirbelscancontrol-0.0.2.tgz -C $FOLDER/ --strip-components 1
     rm -f vdr-wirbelscancontrol-0.0.2.tgz
 fi
