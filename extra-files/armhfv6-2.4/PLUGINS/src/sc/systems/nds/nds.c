@@ -19,7 +19,7 @@
 
 #include "nds.h"
 #include "log-nds.h"
-#include "version.h"
+#include "sc-version.h"
 
 SCAPIVERSTAG();
 

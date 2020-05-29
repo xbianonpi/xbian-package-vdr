@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: VDR-SC\n"
-"Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2014-07-07 19:37+0200\n"
+"Report-Msgid-Bugs-To: <noone@nowhere.org>\n"
+"POT-Creation-Date: 2012-05-05 16:21+0200\n"
 "PO-Revision-Date: 2007-08-27 12:45+0200\n"
 "Last-Translator: somebody\n"
 "Language-Team: somebody\n"
@@ -178,3 +178,66 @@ msgstr "En mjukvaruemulerad CAM"
 
 msgid "undisclosed key"
 msgstr "ej avslöjad nyckel"
+
+msgid "Cardclient: connect immediately"
+msgstr ""
+
+msgid "Cryptoworks: min. ECM processing time"
+msgstr ""
+
+msgid "Nagra: min. ECM processing time"
+msgstr ""
+
+msgid "Nagra2: drop EMM-S packets"
+msgstr ""
+
+msgid "Nagra2: Enable AUXserver"
+msgstr ""
+
+msgid "Nagra2: AUXserver hostname"
+msgstr ""
+
+msgid "Nagra2: AUXserver port"
+msgstr ""
+
+msgid "Nagra2: AUXserver password"
+msgstr ""
+
+msgid "don't touch"
+msgstr ""
+
+msgid "disable"
+msgstr ""
+
+msgid "SC-Cryptoworks: Parental rating"
+msgstr ""
+
+msgid "SC-Nagra: use T14 Nagra mode"
+msgstr ""
+
+msgid "allow ALL"
+msgstr ""
+
+msgid "block UNIQUE"
+msgstr ""
+
+msgid "block SHARED"
+msgstr ""
+
+msgid "block ALL"
+msgstr ""
+
+msgid "SC-Seca: EMM updates"
+msgstr ""
+
+msgid "SC-Viaccess: Parental lock"
+msgstr ""
+
+msgid "stream"
+msgstr ""
+
+msgid "tps.bin"
+msgstr ""
+
+msgid "Viaccess: TPS updates from"
+msgstr ""

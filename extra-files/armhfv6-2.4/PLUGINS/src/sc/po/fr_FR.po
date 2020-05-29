@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: VDR-SC\n"
-"Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2014-07-07 19:37+0200\n"
+"Report-Msgid-Bugs-To: <noone@nowhere.org>\n"
+"POT-Creation-Date: 2012-05-05 16:21+0200\n"
 "PO-Revision-Date: 2007-08-27 12:45+0200\n"
 "Last-Translator: somebody\n"
 "Language-Team: somebody\n"
@@ -179,50 +179,65 @@ msgstr "Un logiciel emulateur de CAM"
 msgid "undisclosed key"
 msgstr "clé non-révélée"
 
-#~ msgid "Cardclient: connect immediately"
-#~ msgstr "Cardclient: connecter immediatement"
+msgid "Cardclient: connect immediately"
+msgstr "Cardclient: connecter immediatement"
 
-#~ msgid "Cryptoworks: min. ECM processing time"
-#~ msgstr "Cryptoworks: temps de traitement min. ECM"
+msgid "Cryptoworks: min. ECM processing time"
+msgstr "Cryptoworks: temps de traitement min. ECM"
 
-#~ msgid "Nagra: min. ECM processing time"
-#~ msgstr "Nagra: temps de traitement min. ECM"
+msgid "Nagra: min. ECM processing time"
+msgstr "Nagra: temps de traitement min. ECM"
 
-#~ msgid "Nagra2: drop EMM-S packets"
-#~ msgstr "Nagra2: ignorer les packets EMM-S"
+msgid "Nagra2: drop EMM-S packets"
+msgstr "Nagra2: ignorer les packets EMM-S"
 
-#~ msgid "Nagra2: Enable AUXserver"
-#~ msgstr "Nagra2: Activer AUXserver"
+msgid "Nagra2: Enable AUXserver"
+msgstr "Nagra2: Activer AUXserver"
 
-#~ msgid "Nagra2: AUXserver hostname"
-#~ msgstr "Nagra2: Hostname AUXserver"
+msgid "Nagra2: AUXserver hostname"
+msgstr "Nagra2: Hostname AUXserver"
 
-#~ msgid "Nagra2: AUXserver port"
-#~ msgstr "Nagra2: Port AUXserver"
+msgid "Nagra2: AUXserver port"
+msgstr "Nagra2: Port AUXserver"
 
-#~ msgid "Nagra2: AUXserver password"
-#~ msgstr "Nagra2: Mot de passe AUXserver"
+msgid "Nagra2: AUXserver password"
+msgstr "Nagra2: Mot de passe AUXserver"
 
-#~ msgid "don't touch"
-#~ msgstr "ne pas modifier"
+msgid "don't touch"
+msgstr "ne pas modifier"
 
-#~ msgid "disable"
-#~ msgstr "désactiver"
+msgid "disable"
+msgstr "désactiver"
 
-#~ msgid "SC-Cryptoworks: Parental rating"
-#~ msgstr "SC-Cryptoworks: Contrôle parentale"
+msgid "SC-Cryptoworks: Parental rating"
+msgstr "SC-Cryptoworks: Contrôle parentale"
 
-#~ msgid "allow ALL"
-#~ msgstr "permettre TOUS"
+msgid "SC-Nagra: use T14 Nagra mode"
+msgstr ""
 
-#~ msgid "block UNIQUE"
-#~ msgstr "bloquer UNIQUE"
+msgid "allow ALL"
+msgstr "permettre TOUS"
 
-#~ msgid "block SHARED"
-#~ msgstr "bloquer PARTAGE"
+msgid "block UNIQUE"
+msgstr "bloquer UNIQUE"
 
-#~ msgid "block ALL"
-#~ msgstr "bloquer TOUS"
+msgid "block SHARED"
+msgstr "bloquer PARTAGE"
 
-#~ msgid "SC-Seca: EMM updates"
-#~ msgstr "SC-Seca: mise à jour EMM"
+msgid "block ALL"
+msgstr "bloquer TOUS"
+
+msgid "SC-Seca: EMM updates"
+msgstr "SC-Seca: mise à jour EMM"
+
+msgid "SC-Viaccess: Parental lock"
+msgstr ""
+
+msgid "stream"
+msgstr ""
+
+msgid "tps.bin"
+msgstr ""
+
+msgid "Viaccess: TPS updates from"
+msgstr ""

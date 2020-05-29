@@ -41,6 +41,9 @@ private:
 #endif //!SASC
 protected:
 #ifndef SASC
+#if APIVERSNUM < 20104
+  virtual bool Ready(void);
+#endif
   virtual bool SetPid(cPidHandle *Handle, int Type, bool On);
   virtual bool SetChannelDevice(const cChannel *Channel, bool LiveView);
   virtual bool OpenDvr(void);
@@ -61,14 +64,6 @@ public:
 #else
   cCam *Cam(void) { return cam; }
 #endif //!SASC
-// BEGIN vdr-plugin-dynamite
-private:
-  bool lateInit;
-public:
-#ifdef __DYNAMIC_DEVICE_PROBE
-  virtual bool SetIdleDevice(bool Idle, bool TestOnly);
-#endif
-// END vdr-plugin-dynamite
   };
 
 SCDEVICE::SCDEVICE(cScDevicePlugin *DevPlugin, int Adapter, int Frontend, int cafd)
@@ -82,9 +77,6 @@ SCDEVICE::SCDEVICE(cScDevicePlugin *DevPlugin, int Adapter, int Frontend, int ca
 :DVBDEVICE(Adapter)
 #endif //APIVERSNUM >= 10711
 {
-// BEGIN vdr-plugin-dynamite
-  lateInit = false;
-// END vdr-plugin-dynamite
 #ifndef SASC
   tsBuffer=0; hwciadapter=0;
 #endif
@@ -98,18 +90,10 @@ SCDEVICE::SCDEVICE(cScDevicePlugin *DevPlugin, int Adapter, int Frontend, int ca
 #ifdef SASC
   cam=new cCam(this,Adapter,0,devId,devplugin,softcsa,fullts);
 #endif // !SASC
-// BEGIN vdr-plugin-dynamite
-  cScDevices::AddScDevice(this);
-  if (cScDevices::AutoLateInit())
-     LateInit();
-// END vdr-plugin-dynamite
 }
 
 SCDEVICE::~SCDEVICE()
 {
-// BEGIN vdr-plugin-dynamite
-  cScDevices::DelScDevice(this);
-// END vdr-plugin-dynamite
 #ifndef SASC
   DetachAllReceivers();
   Cancel(3);
@@ -157,9 +141,6 @@ bool SCDEVICE::CheckFullTs(void)
 
 void SCDEVICE::LateInit(void)
 {
-  if (lateInit)
-     return;
-  lateInit = true;
   int n=CardIndex();
   if(DeviceNumber()!=n)
     PRINTF(L_GEN_ERROR,"CardIndex - DeviceNumber mismatch! Put SC plugin first on VDR commandline!");
@@ -176,23 +157,22 @@ void SCDEVICE::LateInit(void)
     if(fullts) PRINTF(L_GEN_INFO,"Enabling hybrid full-ts mode on card %s",devId);
     else PRINTF(L_GEN_INFO,"Using software decryption on card %s",devId);
     }
-// BEGIN vdr-plugin-dynamite
-#ifdef __DYNAMIC_DEVICE_PROBE
-  cDevice *cidev = parentDevice ? parentDevice : this;
-#else
-  cDevice *cidev = this;
-#endif
-  if(fd_ca2>=0) hwciadapter=cDvbCiAdapter::CreateCiAdapter(cidev,fd_ca2);
-  if (cidev != this)
-     fd_ca2 = -1; // will be closed by patched cDvbCiAdapter
-  cam=new cCam(cidev,DVB_DEV_SPEC,devId,devplugin,softcsa,fullts);
-// END vdr-plugin-dynamite
+  if(fd_ca2>=0) hwciadapter=cDvbCiAdapter::CreateCiAdapter(this,fd_ca2);
+  cam=new cCam(this,DVB_DEV_SPEC,devId,devplugin,softcsa,fullts);
 }
 
 bool SCDEVICE::HasCi(void)
 {
   return cam || hwciadapter;
 }
+
+#if APIVERSNUM < 20104
+bool SCDEVICE::Ready(void)
+{
+  return (cam         ? cam->Ready():true) &&
+         (hwciadapter ? hwciadapter->Ready():true);
+}
+#endif
 
 bool SCDEVICE::SetPid(cPidHandle *Handle, int Type, bool On)
 {
@@ -248,36 +228,6 @@ bool SCDEVICE::GetTSPacket(uchar *&Data)
   if(tsBuffer) { Data=tsBuffer->Get(); return true; }
   return false;
 }
-
-// BEGIN vdr-plugin-dynamite
-#ifdef __DYNAMIC_DEVICE_PROBE
-bool SCDEVICE::SetIdleDevice(bool Idle, bool TestOnly)
-{
-  if (TestOnly) {
-     if (hwciadapter)
-        return hwciadapter->SetIdle(Idle, true);
-     return DVBDEVICE::SetIdleDevice(Idle, true);
-     }
-  if (hwciadapter && !hwciadapter->SetIdle(Idle, false))
-     return false;
-  if (!DVBDEVICE::SetIdleDevice(Idle, false)) {
-     if (hwciadapter)
-        hwciadapter->SetIdle(!Idle, false);
-     return false;
-     }
-  if (Idle) {
-     if (fd_ca >= 0)
-        close(fd_ca);
-     fd_ca = -1;
-     }
-  else {
-     if (fd_ca < 0)
-        fd_ca = cScDevices::DvbOpen(DEV_DVB_CA,adapter,frontend,O_RDWR);
-     }
-  return true;
-}
-#endif
-// END vdr-plugin-dynamite
 
 #endif // !SASC
 

@@ -31,7 +31,7 @@
 #include "cam.h"
 #include "scsetup.h"
 #include "log-core.h"
-#include "version.h"
+#include "sc-version.h"
 
 SCAPIVERSTAG();
 
@@ -59,18 +59,12 @@ bool cScDvbSdFfDevice::CheckFullTs(void)
 bool cScDvbSdFfDevice::SetCaDescr(ca_descr_t *ca_descr, bool initial)
 {
   cMutexLock lock(&cafdMutex);
-// BEGIN vdr-plugin-dynamite
-  if(fd_ca < 0) return false;
-// END vdr-plugin-dynamite
   return ioctl(fd_ca,CA_SET_DESCR,ca_descr)>=0;
 }
 
 bool cScDvbSdFfDevice::SetCaPid(ca_pid_t *ca_pid)
 {
   cMutexLock lock(&cafdMutex);
-// BEGIN vdr-plugin-dynamite
-  if(fd_ca < 0) return false;
-// END vdr-plugin-dynamite
   return ioctl(fd_ca,CA_SET_PID,ca_pid)>=0;
 }
 
@@ -94,9 +88,6 @@ static void av7110_write(int fd, unsigned int addr, unsigned int val)
 
 void cScDvbSdFfDevice::DumpAV(void)
 {
-// BEGIN vdr-plugin-dynamite
-  if(fd_ca < 0) return;
-// END vdr-plugin-dynamite
   if(LOG(L_CORE_AV7110)) {
 #define CODEBASE (0x2e000404+0x1ce00)
     cMutexLock lock(&cafdMutex);

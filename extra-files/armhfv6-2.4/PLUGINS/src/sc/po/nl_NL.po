@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: VDR-SC\n"
-"Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2014-07-07 19:37+0200\n"
+"Report-Msgid-Bugs-To: <noone@nowhere.org>\n"
+"POT-Creation-Date: 2012-05-05 16:21+0200\n"
 "PO-Revision-Date: 2007-08-27 12:45+0200\n"
 "Last-Translator: somebody\n"
 "Language-Team: somebody\n"
@@ -179,35 +179,65 @@ msgstr "In software geëmuleerde CAM"
 msgid "undisclosed key"
 msgstr "onbekende key"
 
-#~ msgid "Cardclient: connect immediately"
-#~ msgstr "Cardclient: direct contact maken"
+msgid "Cardclient: connect immediately"
+msgstr "Cardclient: direct contact maken"
 
-#~ msgid "Cryptoworks: min. ECM processing time"
-#~ msgstr "Cryptoworks: min. ECM bewerkingstijd"
+msgid "Cryptoworks: min. ECM processing time"
+msgstr "Cryptoworks: min. ECM bewerkingstijd"
 
-#~ msgid "Nagra: min. ECM processing time"
-#~ msgstr "Nagra: min. ECM bewerkingstijd"
+msgid "Nagra: min. ECM processing time"
+msgstr "Nagra: min. ECM bewerkingstijd"
 
-#~ msgid "don't touch"
-#~ msgstr "niet wijzigen"
+msgid "Nagra2: drop EMM-S packets"
+msgstr ""
 
-#~ msgid "disable"
-#~ msgstr "uitschakelen"
+msgid "Nagra2: Enable AUXserver"
+msgstr ""
 
-#~ msgid "SC-Cryptoworks: Parental rating"
-#~ msgstr "SC-Cryptoworks: Leeftijdsadvies"
+msgid "Nagra2: AUXserver hostname"
+msgstr ""
 
-#~ msgid "allow ALL"
-#~ msgstr "ALLES toestaan"
+msgid "Nagra2: AUXserver port"
+msgstr ""
 
-#~ msgid "block UNIQUE"
-#~ msgstr "UNIEKE blokkeren"
+msgid "Nagra2: AUXserver password"
+msgstr ""
 
-#~ msgid "block SHARED"
-#~ msgstr "GEDEELDE blokkeren"
+msgid "don't touch"
+msgstr "niet wijzigen"
 
-#~ msgid "block ALL"
-#~ msgstr "ALLES blokkeren"
+msgid "disable"
+msgstr "uitschakelen"
 
-#~ msgid "SC-Seca: EMM updates"
-#~ msgstr "SC-Seca: EMM updates"
+msgid "SC-Cryptoworks: Parental rating"
+msgstr "SC-Cryptoworks: Leeftijdsadvies"
+
+msgid "SC-Nagra: use T14 Nagra mode"
+msgstr ""
+
+msgid "allow ALL"
+msgstr "ALLES toestaan"
+
+msgid "block UNIQUE"
+msgstr "UNIEKE blokkeren"
+
+msgid "block SHARED"
+msgstr "GEDEELDE blokkeren"
+
+msgid "block ALL"
+msgstr "ALLES blokkeren"
+
+msgid "SC-Seca: EMM updates"
+msgstr "SC-Seca: EMM updates"
+
+msgid "SC-Viaccess: Parental lock"
+msgstr ""
+
+msgid "stream"
+msgstr ""
+
+msgid "tps.bin"
+msgstr ""
+
+msgid "Viaccess: TPS updates from"
+msgstr ""

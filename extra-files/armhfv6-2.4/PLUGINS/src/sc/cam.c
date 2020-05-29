@@ -24,7 +24,6 @@
 #include <vdr/device.h>
 #include <vdr/channels.h>
 #include <vdr/thread.h>
-
 #ifndef SASC
 #include <vdr/ringbuffer.h>
 #endif
@@ -1565,8 +1564,8 @@ private:
   int numcaids;
   caid_t caids[MAX_CI_SLOT_CAIDS+1];
 public:
-  cChannelCaids(cChannel *channel);
-  bool IsChannel(cChannel *channel);
+  cChannelCaids(const cChannel *channel);
+  bool IsChannel(const cChannel *channel);
   void Sort(void);
   void Del(caid_t caid);
   bool HasCaid(caid_t caid);
@@ -1579,7 +1578,7 @@ public:
   int Transponder(void) const { return transponder; }
   };
 
-cChannelCaids::cChannelCaids(cChannel *channel)
+cChannelCaids::cChannelCaids(const cChannel *channel)
 {
   prg=channel->Sid(); source=channel->Source(); transponder=channel->Transponder();
   numcaids=0;
@@ -1588,7 +1587,7 @@ cChannelCaids::cChannelCaids(cChannel *channel)
   Sort();
 }
 
-bool cChannelCaids::IsChannel(cChannel *channel)
+bool cChannelCaids::IsChannel(const cChannel *channel)
 {
   return prg==channel->Sid() && source==channel->Source() && transponder==channel->Transponder();
 }
@@ -1842,7 +1841,7 @@ public:
   cScCamSlot(cCam *Cam, const char *DevId, int Slot);
   void Process(const unsigned char *data, int len);
   eModuleStatus Status(void);
-  bool ResetSlot(bool log=true);
+  bool Reset(void);
   cCiFrame *Frame(void) { return &frame; }
   };
 
@@ -1854,7 +1853,7 @@ cScCamSlot::cScCamSlot(cCam *Cam, const char *DevId, int Slot)
   cam=Cam; devId=DevId; slot=Slot;
   version=0; caids[0]=0; doReply=false; lastStatus=msReset;
   frame.SetRb(&rb);
-  ResetSlot(false);
+  Reset();
 }
 
 eModuleStatus cScCamSlot::Status(void)
@@ -1877,11 +1876,10 @@ eModuleStatus cScCamSlot::Status(void)
   return status;
 }
 
-bool cScCamSlot::ResetSlot(bool log)
+bool cScCamSlot::Reset()
 {
   reset=true; resetTimer.Set(SLOT_RESET_TIME);
   rb.Clear();
-  if(log) PRINTF(L_CORE_CI,"%s.%d: reset",devId,slot);
   return true;
 }
 
@@ -1891,7 +1889,7 @@ bool cScCamSlot::Check(void)
   bool dr=cam->IsSoftCSA(false) || ScSetup.ConcurrentFF>0;
   if(dr!=doReply && !IsDecrypting()) {
     PRINTF(L_CORE_CI,"%s.%d: doReply changed, reset triggered",devId,slot);
-    ResetSlot(false);
+    Reset();
     doReply=dr;
     }
   if(checkTimer.TimedOut()) {
@@ -2189,26 +2187,29 @@ void cCam::BuildCaids(bool force)
   if(caidTimer.TimedOut() || force || (rebuildcaids && triggerTimer.TimedOut())) {
     PRINTF(L_CORE_CAIDS,"%s: building caid lists",devId);
     cChannelList list(devId);
-#if VDRVERSNUM >= 20301
+
+
     {
+#if VDRVERSNUM >= 20301
     LOCK_CHANNELS_READ;
-    for(cChannel *channel=(cChannel *)Channels->First(); channel; channel=(cChannel *)Channels->Next(channel)) {
+    for(const cChannel *channel=Channels->First(); channel; channel=Channels->Next(channel)) {
       if(!channel->GroupSep() && channel->Ca()>=CA_ENCRYPTED_MIN && device->ProvidesTransponder(channel)) {
         cChannelCaids *ch=new cChannelCaids(channel);
         if(ch) list.Add(ch);
         }
       }
-    }
 #else
     Channels.Lock(false);
-    for(cChannel *channel=Channels.First(); channel; channel=Channels.Next(channel)) {
+    for(const cChannel *channel=Channels.First(); channel; channel=Channels.Next(channel)) {
       if(!channel->GroupSep() && channel->Ca()>=CA_ENCRYPTED_MIN && device->ProvidesTransponder(channel)) {
         cChannelCaids *ch=new cChannelCaids(channel);
         if(ch) list.Add(ch);
         }
       }
-    Channels.Unlock();
+Channels.Unlock();
 #endif
+    }
+
     list.Unique(true);
     list.CheckIgnore();
     list.Unique(false);
@@ -2343,7 +2344,7 @@ bool cCam::Reset(int Slot)
 {
   cMutexLock lock(&ciMutex);
   PRINTF(L_CORE_CI,"%s: reset of slot %d requested",devId,Slot);
-  return slots[Slot] ? slots[Slot]->ResetSlot():false;
+  return slots[Slot] ? slots[Slot]->Reset():false;
 }
 
 eModuleStatus cCam::ModuleStatus(int Slot)
@@ -2627,7 +2628,7 @@ void cCam::SetCWIndex(int pid, int index)
 void cCam::WriteCW(int index, unsigned char *cw, bool force)
 {
   if(index<MAX_CW_IDX) {
-    for(int i=0; i<16; i+=4) cw[i+3]=cw[i]+cw[i+1]+cw[i+2];
+//    for(int i=0; i<16; i+=4) cw[i+3]=cw[i]+cw[i+1]+cw[i+2];
     ca_descr_t ca_descr;
     ca_descr.index=index;
     unsigned char *last=lastCW[index];
