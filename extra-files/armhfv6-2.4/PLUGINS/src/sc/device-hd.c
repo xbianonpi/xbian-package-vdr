@@ -50,12 +50,18 @@ bool cScDvbHdFfDevice::SetCaDescr(ca_descr_t *ca_descr, bool initial)
 {
   if(!initial) cCondWait::SleepMs(150);
   cMutexLock lock(&cafdMutex);
+// BEGIN vdr-plugin-dynamite
+  if(fd_ca < 0) return false;
+// END vdr-plugin-dynamite
   return ioctl(fd_ca,CA_SET_DESCR,ca_descr)>=0;
 }
 
 bool cScDvbHdFfDevice::SetCaPid(ca_pid_t *ca_pid)
 {
   cMutexLock lock(&cafdMutex);
+// BEGIN vdr-plugin-dynamite
+  if(fd_ca < 0) return false;
+// END vdr-plugin-dynamite
   return ioctl(fd_ca,CA_SET_PID,ca_pid)>=0;
 }
 
