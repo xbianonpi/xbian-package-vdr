@@ -1305,7 +1305,7 @@ PRINTF(L_CORE_ECM,"%s: new caDescr: %s",id,*filterCaDescr.ToString());
             resendTime.Set(CW_REPEAT_TIME);
           }
         else if(!resend)
-          cryptPeriod=max(5000,min(60000,(int)lastsync.Elapsed()));
+          cryptPeriod=std::max(5000,std::min(60000,(int)lastsync.Elapsed()));
         lastsync.Set();
         }
 

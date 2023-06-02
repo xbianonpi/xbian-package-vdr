@@ -320,7 +320,7 @@ bool cCryptoworks::DecryptRSA(unsigned char *data, int len, unsigned char algo, 
       return false;
       }
     RotateBytes(buf,8);
-    RotateBytes(mask+k,buf+8,min(32,len-k));
+    RotateBytes(mask+k,buf+8,std::min(32,len-k));
     }
   LDUMP(L_SYS_VERBOSE,mask,len,"rsa out:");
 

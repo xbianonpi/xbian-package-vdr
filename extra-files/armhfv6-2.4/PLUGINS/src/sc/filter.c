@@ -96,7 +96,7 @@ void cPidFilter::SetBuffSize(int BuffSize)
   cMutexLock lock(this);
   if(fd>=0) {
     Stop();
-    int s=max(BuffSize,8192);
+    int s=std::max(BuffSize,8192);
     CHECK(ioctl(fd,DMX_SET_BUFFER_SIZE,s));
     }
 }

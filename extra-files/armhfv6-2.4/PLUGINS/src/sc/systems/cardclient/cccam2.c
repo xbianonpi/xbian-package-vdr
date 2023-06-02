@@ -511,7 +511,7 @@ void cShares::SetLag(int shareid, int lag)
   Lock(false);
   cShare *s=Find(shareid);
   if(s) {
-    lag=min(lag,MAXLAG);
+    lag=std::min(lag,MAXLAG);
     if(s->lag==STDLAG) s->lag=(STDLAG+lag)/2;
     else s->lag=(3*s->lag+lag)/4;
     }

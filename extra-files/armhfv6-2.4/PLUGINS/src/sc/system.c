@@ -474,7 +474,7 @@ cMsgCache::~cMsgCache()
 
 void cMsgCache::SetMaxFail(int maxfail)
 {
-  maxFail=min(maxfail,FAILN);
+  maxFail=std::min(maxfail,FAILN);
   PRINTF(L_CORE_MSGCACHE,"%d/%p: maxFail set to %d",getpid(),this,maxFail);
 }
 

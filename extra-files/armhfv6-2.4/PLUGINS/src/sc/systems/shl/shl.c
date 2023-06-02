@@ -218,7 +218,7 @@ void cPidHopper::Process(cPidFilter *filter, unsigned char *data, int len)
     for(int i=0; i<numFilters; i++)
       if(d[i].filter==filter) {
         do {
-          int l=min(len,184);
+          int l=std::min(len,184);
           struct FilterPacket *p=(struct FilterPacket *)malloc(sizeof(struct FilterPacket)+l-1);
           if(p) {
             p->next=0;
@@ -285,7 +285,7 @@ int cPidHopper::Read(int pid, int & now, unsigned char *buff, int len, int timeo
       }
     for(struct FilterPacket *p=dd->first; p; p=p->next) {
       if(p->lastTime>=now) {
-        n=min(len,p->dataLen);
+        n=std::min(len,p->dataLen);
         memcpy(buff,p->lastData,n);
         now=p->lastTime;
         PRINTF(L_SYS_HOPPER,"PID %04x returning packet %p (time=%d)",dd->filter->Pid(),p,p->lastTime);
@@ -473,7 +473,7 @@ bool cSystemShl::ProcessECM(const cEcmInfo *ecm, unsigned char *source)
         return false;
         }
 #if 1
-      unsigned int l=min((int)(sizeof(prv->pids)/sizeof(unsigned short)),prv->filters);
+      unsigned int l=std::min((int)(sizeof(prv->pids)/sizeof(unsigned short)),prv->filters);
       for(unsigned int i=0; i<l; i++) {
         if(prv->pids[i]<=0) break;
         ph->AddPid(prv->pids[i]);

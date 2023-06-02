@@ -242,14 +242,14 @@ void cST20::LogOpOper(int op, int oper)
   if(!cmds[op]) return;
   int n=loglb->Length();
   if(flags[op]&2) oper+=Iptr;
-  if(flags[op]&1) loglb->Printf("%*s%-5s $%-8X ",max(OP_COL-n,1)," ",cmds[op],oper);
-  else            loglb->Printf("%*s%-5s  %-8d ",max(OP_COL-n,1)," ",cmds[op],oper);
+  if(flags[op]&1) loglb->Printf("%*s%-5s $%-8X ",std::max(OP_COL-n,1)," ",cmds[op],oper);
+  else            loglb->Printf("%*s%-5s  %-8d ",std::max(OP_COL-n,1)," ",cmds[op],oper);
 }
 
 void cST20::LogOp(const char *op)
 {
   int n=loglb->Length();
-  loglb->Printf("%*s%-15s ",max(OP_COL-n,1)," ",op);
+  loglb->Printf("%*s%-15s ",std::max(OP_COL-n,1)," ",op);
 }
 
 int cST20::Decode(int count)

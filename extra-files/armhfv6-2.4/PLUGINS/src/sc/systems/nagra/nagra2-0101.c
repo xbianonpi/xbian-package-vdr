@@ -285,7 +285,7 @@ bool cMap0101::Map(int f, unsigned char *data, int l)
       break;
     case 0x32:
       AddMapCycles(1000);
-      l=min(34,l);
+      l=std::min(34,l);
       if(!BN_is_zero(D)) {
         scalar.GetLE(data,l<<3);
         BN_div(C,B,scalar,D,ctx);
@@ -934,7 +934,7 @@ int cN2Prov0101::ProcessEx(unsigned char *data, int len, int pos)
     while(!Run(10000)) {
       if(GetPc()==0x9569) {
         GetMem(0x80,data,len);
-        return max((int)a,6);
+        return std::max((int)a,6);
         }
       else if(GetPc()==0x9599) break;
       else if(!RomCallbacks()) break;

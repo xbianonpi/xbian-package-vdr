@@ -716,7 +716,7 @@ bool cTpsKeys::ProcessAu(const cOpenTVModule *mod)
     }
 
   unsigned int end=(kd>cb1 && kd>cb2 && kd>cb3) ? kd : datahdr->dlen;
-  unsigned int off=min(cb1,min(cb2,cb3))-2;
+  unsigned int off=std::min(cb1,std::min(cb2,cb3))-2;
   PRINTF(L_SYS_TPSAU,"pointers in data section kd=%d cb1=%d cb2=%d cb3=%d - dlen=%d off=%d end=%d - cb1=%d cb2=%d cb3=%d",kd,cb1,cb2,cb3,datahdr->dlen,off,end,cb1-off,cb2-off,cb3-off);
   RegisterAlgo3(d+off,cb1-off,cb2-off,cb3-off,end-off);
 
@@ -944,7 +944,7 @@ void cTpsKeys::PostSave(FILE *f)
   if((mem=DumpAlgo3(len,cb1,cb2,cb3))) {
     fprintf(f,"XS %04X %04X %04X %04X\n",len,cb1,cb2,cb3);
     for(int i=0; i<len; i+=200) {
-      int l=min(200,len-i);
+      int l=std::min(200,len-i);
       fprintf(f,"XC %04X %08X %s\n",i,crc32_le(0,&mem[i],l),HexStr(str,&mem[i],l));
       }
     free(mem);

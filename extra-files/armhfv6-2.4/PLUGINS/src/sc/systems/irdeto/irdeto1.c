@@ -385,7 +385,7 @@ void cSystemIrd::ProcessEMM(int pid, int caid, const unsigned char *data)
   // lastKey: save cpu time if we get bursts of the same key
   if((numKeys>0 && (id[0]!=lastKey || numKeys>1)) || mk) {
     cIrdCardInfo *ci=Icards.First();
-    unsigned char *chkkey=AUTOMEM(max(sizeof(ci->PMK),sizeof(ci->HMK)));
+    unsigned char *chkkey=AUTOMEM(std::max(sizeof(ci->PMK),sizeof(ci->HMK)));
     while(ci) {
       ci->hexBase=cParseIrdeto::AddrBase(buffer);
       if((numKeys>0         && (ci->cProviderIrdeto::MatchEMM(buffer) || CheckNull(ci->provId,sizeof(ci->provId)) )) ||

@@ -85,7 +85,7 @@ bool cCardClientRadegast::Init(const char *config)
 
 void cCardClientRadegast::SetLength(unsigned char *buff, int len)
 {
-  if(buff[0]<=0x90) buff[1]=min(255,len);
+  if(buff[0]<=0x90) buff[1]=std::min(255,len);
   else { buff[1]=len>>8; buff[2]=len&0xFF; }
 }
 
