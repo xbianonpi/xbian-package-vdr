@@ -3,5 +3,5 @@ if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw vnsis
     cd PLUGINS/src
 
     [ -e vnsiserver ] && rm -rf vnsiserver
-    git clone https://github.com/FernetMenta/vdr-plugin-vnsiserver vnsiserver
+    git clone https://github.com/vdr-projects/vdr-plugin-vnsiserver vnsiserver
 fi
