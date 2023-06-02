@@ -7,6 +7,5 @@
     sed -i "0,/trusty/s//$config_platform-$(lsb_release -sc)/" $FILE; \
     sed -i "0,/rpi-jessie/s//$config_platform-$(lsb_release -sc)/" $FILE;
 
-    [ -e ../config_pkgver ] && . ../config_pkgver
     sed -i "s/\${vdr:Depends}/vdr (= $ver~xbian$config_deb_version)/g" debian/control
 )
