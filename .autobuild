@@ -1,6 +1,6 @@
-rpi stable rpi-${config_os_version}
-rpi2 stable rpi2-${config_os_version}
-imx6 stable imx6-${config_os_version}
+#rpi stable rpi-${config_os_version}
+#rpi2 stable rpi2-${config_os_version}
+#imx6 stable imx6-${config_os_version}
 
 #rpi-2.3 devel rpi-${config_os_version}
 #rpi2-2.3 devel rpi2-${config_os_version}
