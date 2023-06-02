@@ -8,5 +8,10 @@ if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw dvbap
     FOLDER="dvbapi"
     [ -e $FOLDER ] && rm -rf FOLDER
     git clone https://github.com/manio/vdr-plugin-dvbapi $FOLDER
-    [ "$VDRVERSION" \< "2.3.0" ] && cd $FOLDER && git checkout tags/v2.2.4 || :
+    cd $FOLDER
+    if [ "$VDRVERSION" \< "2.3.0" ]; then
+        git checkout tags/v2.2.4 -b v2.2.4 || :
+    else
+        git checkout tags/v2.2.6 -b v2.2.6 || :
+    fi
 fi
