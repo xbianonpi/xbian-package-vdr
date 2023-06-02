@@ -3,5 +3,5 @@ if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw live;
     cd PLUGINS/src
 
     [ -e live ] && rm -rf live
-    git clone http://projects.vdr-developer.org/git/vdr-plugin-live.git/ live
+    git clone https://github.com/vdr-projects/vdr-plugin-live live
 fi
