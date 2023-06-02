@@ -1,3 +1,5 @@
 config_build_env=schroot -c armhf${config_os_version}v6 -p --
-config_source_addr=ftp://ftp.tvdr.de/vdr/vdr-2.4.0.tar.bz2
+config_source_type=git
+config_source_addr=http://git.tvdr.de/vdr.git
+config_source_tag=2.4.6
 config_build_plugins=
