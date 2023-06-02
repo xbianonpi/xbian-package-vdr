@@ -1,0 +1,30 @@
+diff --git a/tasks.cpp b/tasks.cpp
+index 350af2e..ffc3644 100644
+--- a/tasks.cpp
++++ working/PLUGINS/src/live/tasks.cpp
+@@ -10,13 +10,13 @@
+ 
+ // STL headers need to be before VDR tools.h (included by <vdr/menu.h>)
+ #include <algorithm>
++#include <functional>
+ 
+ #include <vdr/menu.h>
+ 
+ namespace vdrlive {
+ 
+ using std::for_each;
+-using std::tr1::bind;
+ using namespace std::tr1::placeholders;
+ 
+ const char* NowReplaying()
+@@ -245,8 +245,8 @@ void TaskManager::DoScheduledTasks()
+ 		return;
+ 
+ 	cMutexLock lock( this );
+-	for_each( m_taskQueue.begin(), m_taskQueue.end(), bind( &Task::Action, _1 ) );
+-	for_each( m_stickyTasks.begin(), m_stickyTasks.end(), bind( &Task::Action, _1 ) );
++	for_each( m_taskQueue.begin(), m_taskQueue.end(), std::bind( &Task::Action, _1 ) );
++	for_each( m_stickyTasks.begin(), m_stickyTasks.end(), std::bind( &Task::Action, _1 ) );
+ 	m_taskQueue.clear();
+ 	m_scheduleWait.Broadcast();
+ }
