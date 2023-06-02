@@ -7,5 +7,5 @@ if [ -z "$config_build_plugins" ] || echo $config_build_plugins | grep -qw epgse
 
     [ -e epgsearch ] && rm -rf epgsearch
     [ "$VDRVERSION" \< "2.3.0" ] && branch="vdr-2.2.x" || branch=master
-    git clone -b "$branch" http://projects.vdr-developer.org/git/vdr-plugin-epgsearch.git epgsearch
+    git clone -b "$branch" https://github.com/vdr-projects/vdr-plugin-epgsearch epgsearch
 fi
