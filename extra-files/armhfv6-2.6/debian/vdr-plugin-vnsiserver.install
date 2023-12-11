@@ -1,0 +1,7 @@
+usr/lib/vdr/plugins/libvdr-vnsiserver.so.*
+
+usr/share/locale/*/*/vdr-vnsiserver.*
+
+PLUGINS/src/vnsiserver/vnsiserver/allowed_hosts.conf   etc/vdr/plugins/vnsiserver/
+
+debian/conf/vnsiserver.conf etc/vdr/conf.avail/

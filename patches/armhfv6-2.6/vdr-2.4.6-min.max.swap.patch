@@ -1,0 +1,1164 @@
+diff --git a/PLUGINS/src/osddemo/osddemo.c b/PLUGINS/src/osddemo/osddemo.c
+index 99688d9b..212ab29a 100644
+--- a/PLUGINS/src/osddemo/osddemo.c
++++ b/PLUGINS/src/osddemo/osddemo.c
+@@ -276,10 +276,10 @@ eOSState cLineGame::ProcessKey(eKeys Key)
+   if (state == osUnknown) {
+      const int d = 4;
+      switch (Key & ~k_Repeat) {
+-       case kUp:     y = max(0, y - d); break;
+-       case kDown:   y = min(osd->Height() - d, y + d); break;
+-       case kLeft:   x = max(0, x - d); break;
+-       case kRight:  x = min(osd->Width() - d, x + d); break;
++       case kUp:     y = std::max(0, y - d); break;
++       case kDown:   y = std::min(osd->Height() - d, y + d); break;
++       case kLeft:   x = std::max(0, x - d); break;
++       case kRight:  x = std::min(osd->Width() - d, x + d); break;
+        case kRed:    color = clrRed; break;
+        case kGreen:  color = clrGreen; break;
+        case kYellow: color = clrYellow; break;
+@@ -380,7 +380,7 @@ void cTrueColorDemo::Action(void)
+         bool Animated = false;
+         uint64_t Now = cTimeMs::Now();
+         if (FadeInPixmap) {
+-           double t = min(double(Now - Start) / FadeTime, 1.0);
++           double t = std::min(double(Now - Start) / FadeTime, 1.0);
+            int Alpha = t * ALPHA_OPAQUE;
+            FadeInPixmap->SetAlpha(Alpha);
+            if (t >= 1)
+@@ -388,7 +388,7 @@ void cTrueColorDemo::Action(void)
+            Animated = true;
+            }
+         if (FadeOutPixmap) {
+-           double t = min(double(Now - Start) / FadeTime, 1.0);
++           double t = std::min(double(Now - Start) / FadeTime, 1.0);
+            int Alpha = ALPHA_OPAQUE - t * ALPHA_OPAQUE;
+            FadeOutPixmap->SetAlpha(Alpha);
+            if (t >= 1)
+@@ -396,7 +396,7 @@ void cTrueColorDemo::Action(void)
+            Animated = true;
+            }
+         if (MovePixmap) {
+-           double t = min(double(Now - Start) / MoveTime, 1.0);
++           double t = std::min(double(Now - Start) / MoveTime, 1.0);
+            int x = MoveStart.X() + t * (MoveEnd.X() - MoveStart.X());
+            int y = MoveStart.Y() + t * (MoveEnd.Y() - MoveStart.Y());
+            cRect r = MovePixmap->ViewPort();
+@@ -407,7 +407,7 @@ void cTrueColorDemo::Action(void)
+            Animated = true;
+            }
+         if (TilePixmap) {
+-           double t = min(double(Now - Start) / TileTime, 1.0);
++           double t = std::min(double(Now - Start) / TileTime, 1.0);
+            int x = TileStart.X() + t * (TileEnd.X() - TileStart.X());
+            int y = TileStart.Y() + t * (TileEnd.Y() - TileStart.Y());
+            TilePixmap->SetDrawPortPoint(cPoint(x, y));
+@@ -420,7 +420,7 @@ void cTrueColorDemo::Action(void)
+         if (ScrollPixmap) {
+            if (int(Now - Start) > ScrollWaitTime) {
+               if (ScrollStartTime) {
+-                 double t = min(double(Now - ScrollStartTime) / ScrollLineTime, 1.0);
++                 double t = std::min(double(Now - ScrollStartTime) / ScrollLineTime, 1.0);
+                  int x = ScrollStart.X() + t * (ScrollEnd.X() - ScrollStart.X());
+                  int y = ScrollStart.Y() + t * (ScrollEnd.Y() - ScrollStart.Y());
+                  ScrollPixmap->SetDrawPortPoint(cPoint(x, y));
+@@ -558,7 +558,7 @@ void cTrueColorDemo::Action(void)
+                        const int Size = SmlFont->Width(Text) + 10;
+                        const int NumDots = 12;
+                        const int AnimFrames = NumDots;
+-                       int Rows = min(osd->MaxPixmapSize().Height() / Size, AnimFrames);
++                       int Rows = std::min(osd->MaxPixmapSize().Height() / Size, AnimFrames);
+                        int Cols = (AnimFrames + Rows - 1) / Rows;
+                        // Temporarily using pixmap layer 0 to have the text alpha blended:
+                        AnimPixmap = osd->CreatePixmap(0, cRect((osd->Width() - Size) / 2, StartLine, Size, Size), cRect(0, 0, Size * Cols, Size * Rows));
+@@ -651,10 +651,10 @@ eOSState cTrueColorDemo::ProcessKey(eKeys Key)
+      LOCK_THREAD;
+      const int d = 80;
+      switch (Key & ~k_Repeat) {
+-       case kUp:     cursor.SetY(max(cursorLimits.Top(),    cursor.Y() - d)); clockwise = false; break;
+-       case kDown:   cursor.SetY(min(cursorLimits.Bottom(), cursor.Y() + d)); clockwise = true; break;
+-       case kLeft:   cursor.SetX(max(cursorLimits.Left(),   cursor.X() - d)); clockwise = false; break;
+-       case kRight:  cursor.SetX(min(cursorLimits.Right(),  cursor.X() + d)); clockwise = true; break;
++       case kUp:     cursor.SetY(std::max(cursorLimits.Top(),    cursor.Y() - d)); clockwise = false; break;
++       case kDown:   cursor.SetY(std::min(cursorLimits.Bottom(), cursor.Y() + d)); clockwise = true; break;
++       case kLeft:   cursor.SetX(std::max(cursorLimits.Left(),   cursor.X() - d)); clockwise = false; break;
++       case kRight:  cursor.SetX(std::min(cursorLimits.Right(),  cursor.X() + d)); clockwise = true; break;
+        case kRed:    if (destroyablePixmap) {
+                         osd->DestroyPixmap(destroyablePixmap);
+                         destroyablePixmap = NULL;
+diff --git a/PLUGINS/src/skincurses/skincurses.c b/PLUGINS/src/skincurses/skincurses.c
+index 9e8b59e8..04641ea0 100644
+--- a/PLUGINS/src/skincurses/skincurses.c
++++ b/PLUGINS/src/skincurses/skincurses.c
+@@ -303,9 +303,9 @@ void cSkinCursesDisplayMenu::DrawScrollbar(int Total, int Offset, int Shown, int
+      int yb = yt + Height;
+      int st = yt;
+      int sb = yb;
+-     int th = max(int((sb - st) * double(Shown) / Total + 0.5), 1);
+-     int tt = min(int(st + (sb - st) * double(Offset) / Total + 0.5), sb - th);
+-     int tb = min(tt + th, sb);
++     int th = std::max(int((sb - st) * double(Shown) / Total + 0.5), 1);
++     int tt = std::min(int(st + (sb - st) * double(Offset) / Total + 0.5), sb - th);
++     int tb = std::min(tt + th, sb);
+      int xl = ScOsdWidth - 1;
+      osd->DrawRectangle(xl, st, xl, sb - 1, clrWhite);
+      osd->DrawRectangle(xl, tt, xl, tb - 1, clrCyan);
+@@ -647,8 +647,8 @@ cSkinCursesDisplayTracks::cSkinCursesDisplayTracks(const char *Title, int NumTra
+   currentIndex = -1;
+   itemsWidth = Font.Width(Title);
+   for (int i = 0; i < NumTracks; i++)
+-      itemsWidth = max(itemsWidth, Font.Width(Tracks[i]));
+-  itemsWidth = min(itemsWidth, ScOsdWidth);
++      itemsWidth = std::max(itemsWidth, Font.Width(Tracks[i]));
++  itemsWidth = std::min(itemsWidth, ScOsdWidth);
+   osd = new cCursesOsd(0, 0);
+   osd->DrawRectangle(0, 0, ScOsdWidth - 1, ScOsdHeight - 1, clrBackground);
+   osd->DrawText(0, 0, Title, clrBlack, clrCyan, &Font, itemsWidth);
+diff --git a/channels.c b/channels.c
+index 606ed8ff..03977eeb 100644
+--- a/channels.c
++++ b/channels.c
+@@ -1065,7 +1065,7 @@ int cChannels::MaxChannelNameLength(void)
+      LOCK_CHANNELS_READ;
+      for (const cChannel *Channel = Channels->First(); Channel; Channel = Channels->Next(Channel)) {
+          if (!Channel->GroupSep())
+-            maxChannelNameLength = max(Utf8StrLen(Channel->Name()), maxChannelNameLength);
++            maxChannelNameLength = std::max(Utf8StrLen(Channel->Name()), maxChannelNameLength);
+          }
+      }
+   return maxChannelNameLength;
+@@ -1077,7 +1077,7 @@ int cChannels::MaxShortChannelNameLength(void)
+      LOCK_CHANNELS_READ;
+      for (const cChannel *Channel = Channels->First(); Channel; Channel = Channels->Next(Channel)) {
+          if (!Channel->GroupSep())
+-            maxShortChannelNameLength = max(Utf8StrLen(Channel->ShortName(true)), maxShortChannelNameLength);
++            maxShortChannelNameLength = std::max(Utf8StrLen(Channel->ShortName(true)), maxShortChannelNameLength);
+          }
+      }
+   return maxShortChannelNameLength;
+diff --git a/ci.c b/ci.c
+index ed3470b1..ee8386e2 100644
+--- a/ci.c
++++ b/ci.c
+@@ -220,7 +220,7 @@ void cCaPidReceiver::Receive(const uchar *Data, int Length)
+            }
+         }
+      else if (bufp && length > 0) {
+-        int n = min(length, TS_SIZE - 4);
++        int n = std::min(length, TS_SIZE - 4);
+         if (bufp + n - buffer <= int(sizeof(buffer))) {
+            memcpy(bufp, Data + 4, n);
+            bufp += n;
+@@ -271,7 +271,7 @@ void cCaPidReceiver::Receive(const uchar *Data, int Length)
+               // modify CAT packets
+               const uchar *t = p;
+               for (int i = 0, j = 5; i < mtdNumCatPackets; i++, j = 4) {
+-                  int n = min(length, TS_SIZE - j);
++                  int n = std::min(length, TS_SIZE - j);
+                   memcpy(mtdCatBuffer[i] + j, t, n);
+                   t += n;
+                   length -= n;
+@@ -1614,7 +1614,7 @@ bool cCiMMI::SendAnswer(const char *Text)
+   answer.id = Text ? AI_ANSWER : AI_CANCEL;
+   int len = 0;
+   if (Text) {
+-     len = min(sizeof(answer.text), strlen(Text));
++     len = std::min(sizeof(answer.text), strlen(Text));
+      memcpy(answer.text, Text, len);
+      }
+   SendData(AOT_ANSW, len + 1, (uint8_t *)&answer);
+diff --git a/device.c b/device.c
+index 6b170565..3c455e48 100644
+--- a/device.c
++++ b/device.c
+@@ -938,7 +994,7 @@ void cDevice::ForceTransferMode(void)
+ void cDevice::SetOccupied(int Seconds)
+ {
+   if (Seconds >= 0)
+-     occupiedTimeout = time(NULL) + min(Seconds, MAXOCCUPIEDTIMEOUT);
++     occupiedTimeout = time(NULL) + std::min(Seconds, MAXOCCUPIEDTIMEOUT);
+ }
+ 
+ bool cDevice::SetChannelDevice(const cChannel *Channel, bool LiveView)
+@@ -1647,7 +1718,7 @@ int cDevice::PlayTs(const uchar *Data, int Length, bool VideoOnly)
+   cMutexLock MutexLock(&mutexReceiver);
+   for (int i = 0; i < MAXRECEIVERS; i++) {
+       if (receiver[i])
+-         priority = max(receiver[i]->priority, priority);
++         priority = std::max(receiver[i]->priority, priority);
+       }
+   return priority;
+ }
+diff --git a/diseqc.c b/diseqc.c
+index c79e6bb6..87c59809 100644
+--- a/diseqc.c
++++ b/diseqc.c
+@@ -66,7 +66,7 @@ cDiseqcPositioner::cDiseqcPositioner(void)
+ void cDiseqcPositioner::SendDiseqc(uint8_t *Codes, int NumCodes)
+ {
+   struct dvb_diseqc_master_cmd cmd;
+-  NumCodes = min(NumCodes, int(sizeof(cmd.msg) - 2));
++  NumCodes = std::min(NumCodes, int(sizeof(cmd.msg) - 2));
+   cmd.msg_len = 0;
+   cmd.msg[cmd.msg_len++] = 0xE0;
+   cmd.msg[cmd.msg_len++] = 0x31;
+@@ -86,7 +86,7 @@ void cDiseqcPositioner::Step(ePositionerDirection Direction, uint Steps)
+   if (Steps == 0)
+      return;
+   uint8_t Code[] = { uint8_t(Direction == pdLeft ? 0x68 : 0x69), 0xFF };
+-  Code[1] -= min(Steps, uint(0x7F)) - 1;
++  Code[1] -= std::min(Steps, uint(0x7F)) - 1;
+   SendDiseqc(Code, 2);
+ }
+ 
+diff --git a/dvbdevice.c b/dvbdevice.c
+index 132feef9..563e0a99 100644
+--- a/dvbdevice.c
++++ b/dvbdevice.c
+@@ -1409,7 +1420,7 @@ int cDvbTuner::GetSignalQuality(void) const
+               if (Unc > 0) {
+                  int t = time(NULL) - lastUncChange - 2;
+                  if (t > 0)
+-                    Unc >>= min(t, int(sizeof(Unc) * 8 - 1));
++                    Unc >>= std::min(t, int(sizeof(Unc) * 8 - 1));
+                  if (Unc == 0)
+                     lastUncDelta = 0;
+ #ifdef DEBUG_SIGNALQUALITY
+diff --git a/dvbplayer.c b/dvbplayer.c
+index 33c992bd..4a5e7ef5 100644
+--- a/dvbplayer.c
++++ b/dvbplayer.c
+@@ -881,7 +881,7 @@ void cDvbPlayer::SkipSeconds(int Seconds)
+      int Index = ptsIndex.FindIndex(DeviceGetSTC());
+      Empty();
+      if (Index >= 0) {
+-        Index = max(Index + SecondsToFrames(Seconds, framesPerSecond), 0);
++        Index = std::max(Index + SecondsToFrames(Seconds, framesPerSecond), 0);
+         if (Index > 0)
+            Index = index->GetNextIFrame(Index, false, NULL, NULL, NULL);
+         if (Index >= 0)
+diff --git a/dvbspu.c b/dvbspu.c
+index a277f425..468880d6 100644
+--- a/dvbspu.c
++++ b/dvbspu.c
+@@ -64,10 +64,10 @@ cDvbSpuBitmap::cDvbSpuBitmap(sDvbSpuRect size,
+                              uint8_t * fodd, uint8_t * eodd,
+                              uint8_t * feven, uint8_t * eeven)
+ {
+-    size.x1 = max(size.x1, 0);
+-    size.y1 = max(size.y1, 0);
+-    size.x2 = min(size.x2, spuXres - 1);
+-    size.y2 = min(size.y2, spuYres - 1);
++    size.x1 = std::max(size.x1, 0);
++    size.y1 = std::max(size.y1, 0);
++    size.x2 = std::min(size.x2, spuXres - 1);
++    size.y2 = std::min(size.y2, spuYres - 1);
+ 
+     bmpsize = size;
+     revRect(minsize[0], size);
+@@ -345,10 +345,10 @@ sDvbSpuRect cDvbSpuDecoder::CalcAreaSize(sDvbSpuRect fgsize, cBitmap *fgbmp, sDv
+ {
+     sDvbSpuRect size;
+     if (fgbmp && bgbmp) {
+-       size.x1 = min(fgsize.x1, bgsize.x1);
+-       size.y1 = min(fgsize.y1, bgsize.y1);
+-       size.x2 = max(fgsize.x2, bgsize.x2);
+-       size.y2 = max(fgsize.y2, bgsize.y2);
++       size.x1 = std::min(fgsize.x1, bgsize.x1);
++       size.y1 = std::min(fgsize.y1, bgsize.y1);
++       size.x2 = std::max(fgsize.x2, bgsize.x2);
++       size.y2 = std::max(fgsize.y2, bgsize.y2);
+        }
+     else if (fgbmp) {
+        size.x1 = fgsize.x1;
+diff --git a/dvbsubtitle.c b/dvbsubtitle.c
+index 5e5139ff..87c3c22d 100644
+--- a/dvbsubtitle.c
++++ b/dvbsubtitle.c
+@@ -1172,7 +1172,7 @@ void cDvbSubtitleAssembler::Reset(void)
+ bool cDvbSubtitleAssembler::Realloc(int Size)
+ {
+   if (Size > size) {
+-     Size = max(Size, 2048);
++     Size = std::max(Size, 2048);
+      if (uchar *NewBuffer = (uchar *)realloc(data, Size)) {
+         size = Size;
+         data = NewBuffer;
+@@ -1515,7 +1515,7 @@ void cDvbSubtitleConverter::SetOsdData(void)
+      osdDeltaX = osdDeltaY = 0;
+      }
+   else {
+-     osdFactorX = osdFactorY = min(double(OsdWidth) / displayWidth, double(OsdHeight) / displayHeight);
++     osdFactorX = osdFactorY = std::min(double(OsdWidth) / displayWidth, double(OsdHeight) / displayHeight);
+      osdDeltaX = (OsdWidth - displayWidth * osdFactorX) / 2;
+      osdDeltaY = (OsdHeight - displayHeight * osdFactorY) / 2;
+      }
+diff --git a/eit.c b/eit.c
+index 9c3f6f61..e3327f48 100644
+--- a/eit.c
++++ b/eit.c
+@@ -120,7 +120,7 @@ cEIT::cEIT(cSectionSyncerHash &SectionSyncerHash, int Source, u_char Tid, const
+       else {
+          // We have found an existing event, either through its event ID or its start time.
+          pEvent->SetSeen();
+-         uchar TableID = max(pEvent->TableID(), uchar(0x4E)); // for backwards compatibility, table ids less than 0x4E are treated as if they were "present"
++         uchar TableID = std::max(pEvent->TableID(), uchar(0x4E)); // for backwards compatibility, table ids less than 0x4E are treated as if they were "present"
+          // If the new event has a higher table ID, let's skip it.
+          // The lower the table ID, the more "current" the information.
+          if (Tid > TableID)
+diff --git a/font.c b/font.c
+index 2a92c34b..890b354a 100644
+--- a/font.c
++++ b/font.c
+@@ -417,7 +417,7 @@ const cFont *cFont::GetFont(eDvbFont Font)
+   if (!fonts[Font]) {
+      switch (Font) {
+        case fontOsd: SetFont(Font, Setup.FontOsd, Setup.FontOsdSize); break;
+-       case fontSml: SetFont(Font, Setup.FontSml, min(Setup.FontSmlSize, Setup.FontOsdSize)); break;
++       case fontSml: SetFont(Font, Setup.FontSml, std::min(Setup.FontSmlSize, Setup.FontOsdSize)); break;
+        case fontFix: SetFont(Font, Setup.FontFix, Setup.FontFixSize); break;
+        default: esyslog("ERROR: unknown Font %d (%s %d)", Font, __FUNCTION__, __LINE__);
+        }
+diff --git a/menu.c b/menu.c
+index 724c0a22..2cfb9107 100644
+--- a/menu.c
++++ b/menu.c
+@@ -51,7 +51,7 @@
+ #define MAXCHNAMWIDTH      16 // maximum number of characters of channels' short names shown in schedules menus
+ 
+ #define CHNUMWIDTH  (numdigits(cChannels::MaxNumber()) + 1)
+-#define CHNAMWIDTH  (min(MAXCHNAMWIDTH, cChannels::MaxShortChannelNameLength() + 1))
++#define CHNAMWIDTH  (std::min(MAXCHNAMWIDTH, cChannels::MaxShortChannelNameLength() + 1))
+ 
+ // --- cMenuEditCaItem -------------------------------------------------------
+ 
+@@ -3415,9 +3415,9 @@ cMenuSetupOSD::cMenuSetupOSD(void)
+   fontOsdNames.Insert(strdup(DefaultFontOsd));
+   fontSmlNames.Insert(strdup(DefaultFontSml));
+   fontFixNames.Insert(strdup(DefaultFontFix));
+-  fontOsdIndex = max(0, fontOsdNames.Find(Setup.FontOsd));
+-  fontSmlIndex = max(0, fontSmlNames.Find(Setup.FontSml));
+-  fontFixIndex = max(0, fontFixNames.Find(Setup.FontFix));
++  fontOsdIndex = std::max(0, fontOsdNames.Find(Setup.FontOsd));
++  fontSmlIndex = std::max(0, fontSmlNames.Find(Setup.FontSml));
++  fontFixIndex = std::max(0, fontFixNames.Find(Setup.FontFix));
+   Set();
+ }
+ 
+@@ -5598,7 +5598,7 @@ int cAdaptiveSkipper::GetValue(eKeys Key)
+         lastKey = kNone; // once the direction has changed, every further call halves the value
+      }
+   timeout.Set(Setup.AdaptiveSkipTimeout * 1000);
+-  return max(currentValue, 1);
++  return std::max(currentValue, 1);
+ }
+ 
+ // --- cReplayControl --------------------------------------------------------
+@@ -5857,7 +5857,7 @@ void cReplayControl::TimeSearchProcess(eKeys Key)
+     case kRight: {
+          int dir = ((Key == kRight || Key == kFastFwd) ? 1 : -1);
+          if (dir > 0)
+-            Seconds = min(Total - Current - STAY_SECONDS_OFF_END, Seconds);
++            Seconds = std::min(Total - Current - STAY_SECONDS_OFF_END, Seconds);
+          SkipSeconds(Seconds * dir);
+          timeSearchActive = false;
+          }
+@@ -5869,7 +5869,7 @@ void cReplayControl::TimeSearchProcess(eKeys Key)
+     case kDown:
+     case kOk:
+          if (timeSearchPos > 0) {
+-            Seconds = min(Total - STAY_SECONDS_OFF_END, Seconds);
++            Seconds = std::min(Total - STAY_SECONDS_OFF_END, Seconds);
+             bool Still = Key == kDown || Key == kPause || Key == kOk;
+             Goto(SecondsToFrames(Seconds, FramesPerSecond()), Still);
+             }
+@@ -5975,7 +5975,7 @@ void cReplayControl::MarkMove(int Frames, bool MarkRequired)
+                  m = m2;
+            // Don't skip the next mark:
+            if ((m2 = marks.Next(m)) != NULL)
+-              Frames = min(Frames, m2->Position() - m->Position() - 1);
++              Frames = std::min(Frames, m2->Position() - m->Position() - 1);
+            }
+         else {
+            // Handle marks at the same offset:
+@@ -5983,7 +5983,7 @@ void cReplayControl::MarkMove(int Frames, bool MarkRequired)
+                  m = m2;
+            // Don't skip the next mark:
+            if ((m2 = marks.Prev(m)) != NULL)
+-              Frames = -min(-Frames, m->Position() - m2->Position() - 1);
++              Frames = -std::min(-Frames, m->Position() - m2->Position() - 1);
+            }
+         int p = SkipFrames(Frames);
+         m->SetPosition(p);
+diff --git a/menuitems.c b/menuitems.c
+index d764c58c..f9afdd5f 100644
+--- a/menuitems.c
++++ b/menuitems.c
+@@ -228,7 +228,7 @@ eOSState cMenuEditNumItem::ProcessKey(eKeys Key)
+ cMenuEditIntxItem::cMenuEditIntxItem(const char *Name, int *Value, int Min, int Max, int Factor, const char *NegString, const char *PosString)
+ :cMenuEditIntItem(Name, Value, Min, Max)
+ {
+-  factor = ::max(Factor, 1);
++  factor = std::max(Factor, 1);
+   negString = NegString;
+   posString = PosString;
+   Set();
+diff --git a/mtd.c b/mtd.c
+index 7536dcf8..278a277b 100644
+--- a/mtd.c
++++ b/mtd.c
+@@ -89,7 +89,7 @@ int cMtdHandler::Priority(void)
+ {
+   int p = IDLEPRIORITY;
+   for (int i = 0; i < camSlots.Size(); i++)
+-      p = max(p, camSlots[i]->Priority());
++      p = std::max(p, camSlots[i]->Priority());
+   return p;
+ }
+ 
+diff --git a/nit.c b/nit.c
+index 785aba52..34362d1e 100644
+--- a/nit.c
++++ b/nit.c
+@@ -189,7 +189,7 @@ void cNitFilter::Process(u_short Pid, u_char Tid, const u_char *Data, int Length
+                  static int CodeRates[] = { FEC_NONE, FEC_1_2, FEC_2_3, FEC_3_4, FEC_5_6, FEC_7_8, FEC_8_9, FEC_3_5, FEC_4_5, FEC_9_10, FEC_AUTO, FEC_AUTO, FEC_AUTO, FEC_AUTO, FEC_AUTO, FEC_NONE };
+                  dtp.SetCoderateH(CodeRates[sd->getFecInner()]);
+                  static int Modulations[] = { QPSK, QAM_16, QAM_32, QAM_64, QAM_128, QAM_256, QAM_AUTO };
+-                 dtp.SetModulation(Modulations[min(sd->getModulation(), 6)]);
++                 dtp.SetModulation(Modulations[std::min(sd->getModulation(), 6)]);
+                  int SymbolRate = BCD2INT(sd->getSymbolRate()) / 10;
+                  dbgnit("    %s %d %d %d %d\n", *cSource::ToString(Source), Frequency, dtp.CoderateH(), dtp.Modulation(), SymbolRate);
+                  if (Setup.UpdateChannels >= 5) {
+diff --git a/osd.c b/osd.c
+index 47bda686..f7da61b4 100644
+--- a/osd.c
++++ b/osd.c
+@@ -45,9 +45,9 @@ tColor RgbShade(tColor Color, double Factor)
+   double f = fabs(constrain(Factor, -1.0, 1.0));
+   double w = Factor > 0 ? f * 0xFF : 0;
+   return (Color & 0xFF000000) |
+-         (min(0xFF, int((1 - f) * ((Color >> 16) & 0xFF) + w + 0.5)) << 16) |
+-         (min(0xFF, int((1 - f) * ((Color >>  8) & 0xFF) + w + 0.5)) <<  8) |
+-         (min(0xFF, int((1 - f) * ( Color        & 0xFF) + w + 0.5))      );
++         (std::min(0xFF, int((1 - f) * ((Color >> 16) & 0xFF) + w + 0.5)) << 16) |
++         (std::min(0xFF, int((1 - f) * ((Color >>  8) & 0xFF) + w + 0.5)) <<  8) |
++         (std::min(0xFF, int((1 - f) * ( Color        & 0xFF) + w + 0.5))      );
+ }
+ 
+ #define USE_ALPHA_LUT
+@@ -576,13 +576,13 @@ void cBitmap::DrawText(int x, int y, const char *s, tColor ColorFg, tColor Color
+         if (Width) {
+            if ((Alignment & taLeft) != 0) {
+               if ((Alignment & taBorder) != 0)
+-                 x += max(h / TEXT_ALIGN_BORDER, 1);
++                 x += std::max(h / TEXT_ALIGN_BORDER, 1);
+               }
+            else if ((Alignment & taRight) != 0) {
+               if (w < Width)
+                  x += Width - w;
+               if ((Alignment & taBorder) != 0)
+-                 x -= max(h / TEXT_ALIGN_BORDER, 1);
++                 x -= std::max(h / TEXT_ALIGN_BORDER, 1);
+               }
+            else { // taCentered
+               if (w < Width)
+@@ -617,10 +617,10 @@ void cBitmap::DrawRectangle(int x1, int y1, int x2, int y2, tColor Color)
+      y1 -= y0;
+      x2 -= x0;
+      y2 -= y0;
+-     x1 = max(x1, 0);
+-     y1 = max(y1, 0);
+-     x2 = min(x2, width - 1);
+-     y2 = min(y2, height - 1);
++     x1 = std::max(x1, 0);
++     y1 = std::max(y1, 0);
++     x2 = std::min(x2, width - 1);
++     y2 = std::min(y2, height - 1);
+      tIndex c = Index(Color);
+      for (int y = y1; y <= y2; y++) {
+          for (int x = x1; x <= x2; x++)
+@@ -650,8 +650,8 @@ void cBitmap::DrawEllipse(int x1, int y1, int x2, int y2, tColor Color, int Quad
+     case 8:          cy = y1; rx /= 2; break;
+     default: ;
+     }
+-  int TwoASquare = max(1, 2 * rx * rx);
+-  int TwoBSquare = max(1, 2 * ry * ry);
++  int TwoASquare = std::max(1, 2 * rx * rx);
++  int TwoBSquare = std::max(1, 2 * ry * ry);
+   int x = rx;
+   int y = 0;
+   int XChange = ry * ry * (1 - 2 * rx);
+@@ -839,8 +839,8 @@ cBitmap *cBitmap::Scaled(double FactorX, double FactorY, bool AntiAlias) const
+ {
+   // Fixed point scaling code based on www.inversereality.org/files/bitmapscaling.pdf
+   // by deltener@mindtremors.com
+-  int w = max(1, int(round(Width() * FactorX)));
+-  int h = max(1, int(round(Height() * FactorY)));
++  int w = std::max(1, int(round(Width() * FactorX)));
++  int h = std::max(1, int(round(Height() * FactorY)));
+   cBitmap *b = new cBitmap(w, h, Bpp(), X0(), Y0());
+   int RatioX = (Width() << 16) / b->Width();
+   int RatioY = (Height() << 16) / b->Height();
+@@ -868,10 +868,10 @@ cBitmap *cBitmap::Scaled(double FactorX, double FactorY, bool AntiAlias) const
+      int SourceY = 0;
+      for (int y = 0; y < b->Height(); y++) {
+          int SourceX = 0;
+-         int sy = min(SourceY >> 16, Height() - 2);
++         int sy = std::min(SourceY >> 16, Height() - 2);
+          uint8_t BlendY = 0xFF - ((SourceY >> 8) & 0xFF);
+          for (int x = 0; x < b->Width(); x++) {
+-             int sx = min(SourceX >> 16, Width() - 2);
++             int sx = std::min(SourceX >> 16, Width() - 2);
+              uint8_t BlendX = 0xFF - ((SourceX >> 8) & 0xFF);
+              tColor c1 = b->Blend(GetColor(sx, sy),     GetColor(sx + 1, sy),     BlendX);
+              tColor c2 = b->Blend(GetColor(sx, sy + 1), GetColor(sx + 1, sy + 1), BlendX);
+@@ -923,10 +923,10 @@ cRect cRect::Intersected(const cRect &Rect) const
+ {
+   cRect r;
+   if (!IsEmpty() && !Rect.IsEmpty()) {
+-     r.SetLeft(max(Left(), Rect.Left()));
+-     r.SetTop(max(Top(), Rect.Top()));
+-     r.SetRight(min(Right(), Rect.Right()));
+-     r.SetBottom(min(Bottom(), Rect.Bottom()));
++     r.SetLeft(std::max(Left(), Rect.Left()));
++     r.SetTop(std::max(Top(), Rect.Top()));
++     r.SetRight(std::min(Right(), Rect.Right()));
++     r.SetBottom(std::min(Bottom(), Rect.Bottom()));
+      }
+   return r;
+ }
+@@ -938,10 +938,10 @@ void cRect::Combine(const cRect &Rect)
+   if (Rect.IsEmpty())
+      return;
+   // must set right/bottom *before* top/left!
+-  SetRight(max(Right(), Rect.Right()));
+-  SetBottom(max(Bottom(), Rect.Bottom()));
+-  SetLeft(min(Left(), Rect.Left()));
+-  SetTop(min(Top(), Rect.Top()));
++  SetRight(std::max(Right(), Rect.Right()));
++  SetBottom(std::max(Bottom(), Rect.Bottom()));
++  SetLeft(std::min(Left(), Rect.Left()));
++  SetTop(std::min(Top(), Rect.Top()));
+ }
+ 
+ void cRect::Combine(const cPoint &Point)
+@@ -949,10 +949,10 @@ void cRect::Combine(const cPoint &Point)
+   if (IsEmpty())
+      Set(Point.X(), Point.Y(), 1, 1);
+   // must set right/bottom *before* top/left!
+-  SetRight(max(Right(), Point.X()));
+-  SetBottom(max(Bottom(), Point.Y()));
+-  SetLeft(min(Left(), Point.X()));
+-  SetTop(min(Top(), Point.Y()));
++  SetRight(std::max(Right(), Point.X()));
++  SetBottom(std::max(Bottom(), Point.Y()));
++  SetLeft(std::min(Left(), Point.X()));
++  SetTop(std::min(Top(), Point.Y()));
+ }
+ 
+ // --- cPixmap ---------------------------------------------------------------
+@@ -1336,13 +1336,13 @@ void cPixmapMemory::DrawText(const cPoint &Point, const char *s, tColor ColorFg,
+      if (Width) {
+         if ((Alignment & taLeft) != 0) {
+            if ((Alignment & taBorder) != 0)
+-              x += max(h / TEXT_ALIGN_BORDER, 1);
++              x += std::max(h / TEXT_ALIGN_BORDER, 1);
+            }
+         else if ((Alignment & taRight) != 0) {
+            if (w < Width)
+               x += Width - w;
+            if ((Alignment & taBorder) != 0)
+-              x -= max(h / TEXT_ALIGN_BORDER, 1);
++              x -= std::max(h / TEXT_ALIGN_BORDER, 1);
+            }
+         else { // taCentered
+            if (w < Width)
+@@ -1420,8 +1420,8 @@ void cPixmapMemory::DrawEllipse(const cRect &Rect, tColor Color, int Quadrants)
+     case 8:          cy = y1; rx /= 2; break;
+     default: ;
+     }
+-  int TwoASquare = max(1, 2 * rx * rx);
+-  int TwoBSquare = max(1, 2 * ry * ry);
++  int TwoASquare = std::max(1, 2 * rx * rx);
++  int TwoBSquare = std::max(1, 2 * ry * ry);
+   int x = rx;
+   int y = 0;
+   int XChange = ry * ry * (1 - 2 * rx);
+@@ -2051,8 +2051,8 @@ eOsdError cOsd::SetAreas(const tArea *Areas, int NumAreas)
+      else {
+         for (int i = 0; i < NumAreas; i++) {
+             bitmaps[numBitmaps++] = new cBitmap(Areas[i].Width(), Areas[i].Height(), Areas[i].bpp, Areas[i].x1, Areas[i].y1);
+-            width = max(width, Areas[i].x2 + 1);
+-            height = max(height, Areas[i].y2 + 1);
++            width = std::max(width, Areas[i].x2 + 1);
++            height = std::max(height, Areas[i].y2 + 1);
+             }
+         }
+      }
+@@ -2242,15 +2242,15 @@ void cOsdProvider::UpdateOsdSize(bool Force)
+   if (Width != oldWidth || Height != oldHeight || !DoubleEqual(Aspect, oldAspect) || Force) {
+      Setup.OSDLeft = int(round(Width * Setup.OSDLeftP));
+      Setup.OSDTop = int(round(Height * Setup.OSDTopP));
+-     Setup.OSDWidth = min(Width - Setup.OSDLeft, int(round(Width * Setup.OSDWidthP))) & ~0x07; // OSD width must be a multiple of 8
+-     Setup.OSDHeight = min(Height - Setup.OSDTop, int(round(Height * Setup.OSDHeightP)));
++     Setup.OSDWidth = std::min(Width - Setup.OSDLeft, int(round(Width * Setup.OSDWidthP))) & ~0x07; // OSD width must be a multiple of 8
++     Setup.OSDHeight = std::min(Height - Setup.OSDTop, int(round(Height * Setup.OSDHeightP)));
+      Setup.OSDAspect = Aspect;
+      Setup.FontOsdSize = int(round(Height * Setup.FontOsdSizeP));
+      Setup.FontFixSize = int(round(Height * Setup.FontFixSizeP));
+      Setup.FontSmlSize = int(round(Height * Setup.FontSmlSizeP));
+      cFont::SetFont(fontOsd, Setup.FontOsd, Setup.FontOsdSize);
+      cFont::SetFont(fontFix, Setup.FontFix, Setup.FontFixSize);
+-     cFont::SetFont(fontSml, Setup.FontSml, min(Setup.FontSmlSize, Setup.FontOsdSize));
++     cFont::SetFont(fontSml, Setup.FontSml, std::min(Setup.FontSmlSize, Setup.FontOsdSize));
+      oldWidth = Width;
+      oldHeight = Height;
+      oldAspect = Aspect;
+@@ -2355,7 +2355,7 @@ void cTextScroller::Set(cOsd *Osd, int Left, int Top, int Width, int Height, con
+   colorBg = ColorBg;
+   offset = 0;
+   textWrapper.Set(Text, Font, Width);
+-  shown = min(Total(), height / font->Height());
++  shown = std::min(Total(), height / font->Height());
+   height = shown * font->Height(); // sets height to the actually used height, which may be less than Height
+   DrawText();
+ }
+diff --git a/osdbase.c b/osdbase.c
+index d555af98..5a437cdf 100644
+--- a/osdbase.c
++++ b/osdbase.c
+@@ -254,7 +254,7 @@ void cOsdMenu::Display(void)
+          }
+      if (current < 0)
+         current = 0; // just for safety - there HAS to be a current item!
+-     first = max(0, min(first, max(0, count - displayMenuItems))); // in case the menu size has changed
++     first = std::max(0, std::min(first, std::max(0, count - displayMenuItems))); // in case the menu size has changed
+      if (current - first >= displayMenuItems || current < first) {
+         first = current - displayMenuItems / 2;
+         if (first + displayMenuItems > count)
+@@ -283,7 +283,7 @@ void cOsdMenu::SetCurrent(cOsdItem *Item)
+ {
+   current = Item ? Item->Index() : -1;
+   if (current >= 0 && lastOffset >= 0)
+-     first = max(0, current - lastOffset);
++     first = std::max(0, current - lastOffset);
+   lastOffset = -1;
+ }
+ 
+@@ -370,11 +370,11 @@ void cOsdMenu::CursorUp(void)
+      DisplayCurrent(false);
+   current = tmpCurrent;
+   if (current < first) {
+-     first = Setup.MenuScrollPage ? max(0, current - displayMenuItems + 1) : current;
++     first = Setup.MenuScrollPage ? std::max(0, current - displayMenuItems + 1) : current;
+      Display();
+      }
+   else if (current > lastOnScreen) {
+-     first = max(0, current - displayMenuItems + 1);
++     first = std::max(0, current - displayMenuItems + 1);
+      Display();
+      }
+   else
+@@ -408,9 +408,9 @@ void cOsdMenu::CursorDown(void)
+      DisplayCurrent(false);
+   current = tmpCurrent;
+   if (current > lastOnScreen) {
+-     first = Setup.MenuScrollPage ? current : max(0, current - displayMenuItems + 1);
++     first = Setup.MenuScrollPage ? current : std::max(0, current - displayMenuItems + 1);
+      if (first + displayMenuItems > last)
+-        first = max(0, last - displayMenuItems + 1);
++        first = std::max(0, last - displayMenuItems + 1);
+      Display();
+      }
+   else if (current < first) {
+@@ -465,7 +465,7 @@ void cOsdMenu::PageDown(void)
+   if (current > last)
+      current = last;
+   if (first + displayMenuItems > last)
+-     first = max(0, last - displayMenuItems + 1);
++     first = std::max(0, last - displayMenuItems + 1);
+   int tmpCurrent = current;
+   while (!SelectableItem(tmpCurrent) && ++tmpCurrent <= last)
+         ;
+diff --git a/recording.c b/recording.c
+index 6bfbcff1..8c760392 100644
+--- a/recording.c
++++ b/recording.c
+@@ -1088,7 +1088,7 @@ const char *cRecording::Title(char Delimiter, bool NewIndicator, int Level) cons
+         s = name;
+      cString Length("");
+      if (NewIndicator) {
+-        int Minutes = max(0, (LengthInSeconds() + 30) / 60);
++        int Minutes = std::max(0, (LengthInSeconds() + 30) / 60);
+         Length = cString::sprintf("%c%d:%02d",
+                    Delimiter,
+                    Minutes / 60,
+@@ -1808,7 +1808,7 @@ void cDirCopier::Action(void)
+                     }
+                  dsyslog("copying file '%s' to '%s'", *FileNameSrc, *FileNameDst);
+                  if (!Buffer) {
+-                    BufferSize = max(size_t(st.st_blksize * 10), size_t(BUFSIZ));
++                    BufferSize = std::max(size_t(st.st_blksize * 10), size_t(BUFSIZ));
+                     Buffer = MALLOC(uchar, BufferSize);
+                     if (!Buffer) {
+                        esyslog("ERROR: out of memory");
+@@ -2216,8 +2216,8 @@ void cMarks::Sort(void)
+   for (cMark *m1 = First(); m1; m1 = Next(m1)) {
+       for (cMark *m2 = Next(m1); m2; m2 = Next(m2)) {
+           if (m2->Position() < m1->Position()) {
+-             swap(m1->position, m2->position);
+-             swap(m1->comment, m2->comment);
++             std::swap(m1->position, m2->position);
++             std::swap(m1->comment, m2->comment);
+              }
+           }
+       }
+diff --git a/remux.c b/remux.c
+index 0bf41f36..2b29d49b 100644
+--- a/remux.c
++++ b/remux.c
+@@ -1055,7 +1055,7 @@ void cTsToPes::PutTs(const uchar *Data, int Length)
+      return; // skip everything before the first payload start
+   Length = TsGetPayload(&Data);
+   if (length + Length > size) {
+-     int NewSize = max(KILOBYTE(2), length + Length);
++     int NewSize = std::max(KILOBYTE(2), length + Length);
+      if (uchar *NewData = (uchar *)realloc(data, NewSize)) {
+         data = NewData;
+         size = NewSize;
+@@ -1092,7 +1092,7 @@ const uchar *cTsToPes::GetPes(int &Length)
+               }
+            memmove(p, data, 4);
+            }
+-        int l = min(length - offset, MAXPESLENGTH);
++        int l = std::min(length - offset, MAXPESLENGTH);
+         offset += l;
+         if (p != data) {
+            l += 3;
+@@ -1149,13 +1149,13 @@ void BlockDump(const char *Name, const u_char *Data, int Length)
+ void TsDump(const char *Name, const u_char *Data, int Length)
+ {
+   printf("%s: %04X", Name, Length);
+-  int n = min(Length, 20);
++  int n = std::min(Length, 20);
+   for (int i = 0; i < n; i++)
+       printf(" %02X", Data[i]);
+   if (n < Length) {
+      printf(" ...");
+-     n = max(n, Length - 10);
+-     for (n = max(n, Length - 10); n < Length; n++)
++     n = std::max(n, Length - 10);
++     for (n = std::max(n, Length - 10); n < Length; n++)
+          printf(" %02X", Data[n]);
+      }
+   printf("\n");
+diff --git a/ringbuffer.c b/ringbuffer.c
+index 902c8878..979d984e 100644
+--- a/ringbuffer.c
++++ b/ringbuffer.c
+@@ -151,7 +151,7 @@ void cRingBufferLinear::PrintDebugRBL(void)
+          char buf[DEBUGRBLWIDTH + 10];
+          memset(buf, '-', DEBUGRBLWIDTH);
+          if (lt <= lh)
+-            memset(buf + t, '*', max(h - t, 1));
++            memset(buf + t, '*', std::max(h - t, 1));
+          else {
+             memset(buf, '*', h);
+             memset(buf + t, '*', DEBUGRBLWIDTH - t);
+diff --git a/skinclassic.c b/skinclassic.c
+index 26408993..5342b622 100644
+--- a/skinclassic.c
++++ b/skinclassic.c
+@@ -243,9 +243,9 @@ void cSkinClassicDisplayMenu::DrawScrollbar(int Total, int Offset, int Shown, in
+      int yb = yt + Height;
+      int st = yt;
+      int sb = yb;
+-     int th = max(int((sb - st) * double(Shown) / Total + 0.5), ScrollWidth);
+-     int tt = min(int(st + (sb - st) * double(Offset) / Total + 0.5), sb - th);
+-     int tb = min(tt + th, sb);
++     int th = std::max(int((sb - st) * double(Shown) / Total + 0.5), ScrollWidth);
++     int tt = std::min(int(st + (sb - st) * double(Offset) / Total + 0.5), sb - th);
++     int tb = std::min(tt + th, sb);
+      int xl = x3 - ScrollWidth;
+      osd->DrawRectangle(xl, st, x3 - 1, sb - 1, Theme.Color(clrMenuScrollbarTotal));
+      osd->DrawRectangle(xl, tt, x3 - 1, tb - 1, Theme.Color(clrMenuScrollbarShown));
+@@ -443,7 +443,7 @@ void cSkinClassicDisplayMenu::Flush(void)
+      int w = font->Width(date);
+      osd->DrawText(x3 - w - TextFrame, y0, date, Theme.Color(clrMenuDate), Theme.Color(clrMenuTitleBg), font, w);
+      lastDate = date;
+-     dateWidth = max(w + TextFrame, dateWidth);
++     dateWidth = std::max(w + TextFrame, dateWidth);
+      }
+   osd->Flush();
+ }
+@@ -638,7 +638,7 @@ cSkinClassicDisplayTracks::cSkinClassicDisplayTracks(const char *Title, int NumT
+   currentIndex = -1;
+   int ItemsWidth = font->Width(Title);
+   for (int i = 0; i < NumTracks; i++)
+-      ItemsWidth = max(ItemsWidth, font->Width(Tracks[i]));
++      ItemsWidth = std::max(ItemsWidth, font->Width(Tracks[i]));
+   ItemsWidth += 2 * TextSpacing;
+   x0 = 0;
+   x1 = cOsd::OsdWidth();
+diff --git a/skinlcars.c b/skinlcars.c
+index 0f431631..105de490 100644
+--- a/skinlcars.c
++++ b/skinlcars.c
+@@ -245,18 +245,18 @@ static bool DrawDeviceData(cOsd *Osd, const cDevice *Device, int x0, int y0, int
+      int x = x0;
+      // Device number:
+      cString Nr = itoa(Device->DeviceNumber() + 1);
+-     int w = max(font->Width(Nr), y1 - y0);
++     int w = std::max(font->Width(Nr), y1 - y0);
+      Osd->DrawText(x, y0, Nr, ColorFg, ColorBg, font, w, y1 - y0, taCenter);
+      x += w;
+      // Device type:
+      Osd->DrawText(x, y0, DeviceType, ColorFg, ColorBg, TinyFont);
+-     xs = max(xs, x + TinyFont->Width(DeviceType));
++     xs = std::max(xs, x + TinyFont->Width(DeviceType));
+      LastDeviceType = DeviceType;
+      // CAM:
+      if (CamSlot) {
+         cString s = cString::sprintf("CAM %d", CamSlot->MasterSlotNumber());
+         Osd->DrawText(x, y1 - TinyFont->Height(), s, ColorFg, ColorBg, TinyFont);
+-        xs = max(xs, x + TinyFont->Width(s));
++        xs = std::max(xs, x + TinyFont->Width(s));
+         }
+      LastCamSlot = CamSlot;
+      return true;
+@@ -268,7 +268,7 @@ static void DrawDeviceSignal(cOsd *Osd, const cDevice *Device, int x0, int y0, i
+ {
+   int SignalStrength = Device->SignalStrength();
+   int SignalQuality = Device->SignalQuality();
+-  int d = max((y1 - y0) / 10, 1);
++  int d = std::max((y1 - y0) / 10, 1);
+   int x00 = x0 + d;
+   int x01 = x1 - d;
+   int h = (y1 - y0 - 3 * d) / 2;
+@@ -311,14 +311,14 @@ static void DrawDevicePosition(cOsd *Osd, const cPositioner *Positioner, int x0,
+   int Target = cPositioner::NormalizeAngle(HorizonLeft - Positioner->TargetLongitude());
+   int d = (y1 - y0) / 2;
+   int w = x1 - x0 - 2 * d;
+-  int l = max(x0 + d, x0 + d + w * HardLimitLeft / HorizonDelta);
+-  int r = min(x1 - d, x1 - d - w * HardLimitRight / HorizonDelta) - 1;
++  int l = std::max(x0 + d, x0 + d + w * HardLimitLeft / HorizonDelta);
++  int r = std::min(x1 - d, x1 - d - w * HardLimitRight / HorizonDelta) - 1;
+   int c = constrain(x0 + d + w * Current / HorizonDelta, l, r);
+   int t = constrain(x0 + d + w * Target / HorizonDelta, l, r);
+   if (c == LastCurrent)
+      return;
+   if (c > t)
+-     swap(c, t);
++     std::swap(c, t);
+   tColor ColorRange, ColorMove;
+   if (TwoColors) {
+      ColorRange = Theme.Color(clrChannelFrameBg);
+@@ -502,7 +502,7 @@ void cSkinLCARSDisplayChannel::DrawSeen(int Current, int Total)
+ {
+   if (lastCurrentPosition >= 0)
+      return; // to not interfere with SetPositioner()
+-  int Seen = (Total > 0) ? min(xc07 - xc06, int((xc07 - xc06) * double(Current) / Total)) : 0;
++  int Seen = (Total > 0) ? std::min(xc07 - xc06, int((xc07 - xc06) * double(Current) / Total)) : 0;
+   if (initial || Seen != lastSeen) {
+      int y0 = yc11 - ShowSeenExtent;
+      int y1 = yc11 + lineHeight / 2 - Gap / 2;
+@@ -541,7 +541,7 @@ void cSkinLCARSDisplayChannel::SetChannel(const cChannel *Channel, int Number)
+            bmEncrypted.Width() - SymbolSpacing -
+            bmDolbyDigital.Width() - SymbolSpacing -
+            bmAudio.Width() - SymbolSpacing -
+-           max(bmTeletext.Width(), bmRadio.Width()) - SymbolSpacing;
++           std::max(bmTeletext.Width(), bmRadio.Width()) - SymbolSpacing;
+   osd->DrawRectangle(xi, yc00, xc13 - 1, yc01 - 1, frameColor);
+   if (Channel && !Channel->GroupSep()) {
+      bool rec = cRecordControls::Active();
+@@ -1194,9 +1194,9 @@ void cSkinLCARSDisplayMenu::DrawScrollbar(int Total, int Offset, int Shown, bool
+      }
+   if (Total > 0 && Total > Shown) {
+      int sw = x1 - x0;
+-     int sh = max(int((tb - tt) * double(Shown) / Total + 0.5), sw);
+-     int st = min(int(tt + (tb - tt) * double(Offset) / Total + 0.5), tb - sh);
+-     int sb = min(st + sh, tb);
++     int sh = std::max(int((tb - tt) * double(Shown) / Total + 0.5), sw);
++     int st = std::min(int(tt + (tb - tt) * double(Offset) / Total + 0.5), tb - sh);
++     int sb = std::min(st + sh, tb);
+      osd->DrawRectangle(x0, tt, x1 - 1, tb - 1, Theme.Color(clrMenuScrollbarTotal));
+      osd->DrawRectangle(x0, st, x1 - 1, sb - 1, Theme.Color(clrMenuScrollbarShown));
+      }
+@@ -1230,7 +1230,7 @@ void cSkinLCARSDisplayMenu::DrawTimer(const cTimer *Timer, int y, bool MultiRec)
+      Date = cString::sprintf("VPS %s", *Date);
+   const cChannel *Channel = Timer->Channel();
+   const cEvent *Event = Timer->Event();
+-  int d = max(TextFrame / 2, 1);
++  int d = std::max(TextFrame / 2, 1);
+   if (Channel) {
+      osd->DrawText(xs00 + d, y, Channel->Name(), ColorFg, ColorBg, tinyFont, xs03 - xs00 - d);
+      osd->DrawText(xs03 - tinyFont->Width(Date) - d, y, Date, ColorFg, ColorBg, tinyFont);
+@@ -1513,7 +1513,7 @@ void cSkinLCARSDisplayMenu::DrawInfo(const cEvent *Event, bool WithTime)
+ 
+ void cSkinLCARSDisplayMenu::DrawSeen(int Current, int Total)
+ {
+-  int Seen = (Total > 0) ? min(xm08 - xm02, int((xm08 - xm02) * double(Current) / Total)) : 0;
++  int Seen = (Total > 0) ? std::min(xm08 - xm02, int((xm08 - xm02) * double(Current) / Total)) : 0;
+   if (initial || Seen != lastSeen) {
+      int y0 = yc04 - ShowSeenExtent;
+      int y1 = yc04 + lineHeight / 2 - Gap / 2;
+@@ -1553,7 +1553,7 @@ void cSkinLCARSDisplayMenu::SetTitle(const char *Title)
+ {
+   if (MenuCategory() != mcMain) {
+      const cFont *font = cFont::GetFont(fontOsd);
+-     int w = min(font->Width(Title), xa07 - xa06 - Gap);
++     int w = std::min(font->Width(Title), xa07 - xa06 - Gap);
+      osd->DrawRectangle(xa06, yt00, xa07 - w - Gap - 1, yt01 - 1, frameColor);
+      osd->DrawText(xa07 - w - Gap, yt00, Title, Theme.Color(clrMenuTitle), Theme.Color(clrBackground), font, w + Gap, yt01 - yt00, taRight);
+      }
+@@ -1915,7 +1915,7 @@ void cSkinLCARSDisplayReplay::SetCurrent(const char *Current)
+ {
+   const cFont *font = cFont::GetFont(fontOsd);
+   int w = font->Width(Current);
+-  osd->DrawText(xp03, yp03 - lineHeight, Current, Theme.Color(clrReplayPosition), Theme.Color(clrBackground), font, max(lastCurrentWidth, w), 0, taLeft);
++  osd->DrawText(xp03, yp03 - lineHeight, Current, Theme.Color(clrReplayPosition), Theme.Color(clrBackground), font, std::max(lastCurrentWidth, w), 0, taLeft);
+   lastCurrentWidth = w;
+ }
+ 
+@@ -1923,7 +1923,7 @@ void cSkinLCARSDisplayReplay::SetTotal(const char *Total)
+ {
+   const cFont *font = cFont::GetFont(fontOsd);
+   int w = font->Width(Total);
+-  osd->DrawText(xp13 - w, yp03 - lineHeight, Total, Theme.Color(clrReplayPosition), Theme.Color(clrBackground), font, max(lastTotalWidth, w), 0, taRight);
++  osd->DrawText(xp13 - w, yp03 - lineHeight, Total, Theme.Color(clrReplayPosition), Theme.Color(clrBackground), font, std::max(lastTotalWidth, w), 0, taRight);
+   lastTotalWidth = w;
+ }
+ 
+@@ -2068,7 +2068,7 @@ cSkinLCARSDisplayTracks::cSkinLCARSDisplayTracks(const char *Title, int NumTrack
+   xt03 = xt00 + 2 * lineHeight;
+   int ItemsWidth = font->Width(Title) + xt03 - xt02;
+   for (int i = 0; i < NumTracks; i++)
+-      ItemsWidth = max(ItemsWidth, font->Width(Tracks[i]) + 2 * TextFrame);
++      ItemsWidth = std::max(ItemsWidth, font->Width(Tracks[i]) + 2 * TextFrame);
+   xt04 = xt02 + ItemsWidth;
+   xt05 = xt04 + Gap;
+   xt06 = xt04 + lineHeight;
+diff --git a/skinsttng.c b/skinsttng.c
+index 792652ee..1c4b8dc1 100644
+--- a/skinsttng.c
++++ b/skinsttng.c
+@@ -380,7 +380,7 @@ void cSkinSTTNGDisplayChannel::Flush(void)
+      if (present) {
+         time_t t = time(NULL);
+         if (t > present->StartTime())
+-           seen = min(y4 - y3 - 1, int((y4 - y3) * double(t - present->StartTime()) / present->Duration()));
++           seen = std::min(y4 - y3 - 1, int((y4 - y3) * double(t - present->StartTime()) / present->Duration()));
+         }
+      if (seen != lastSeen) {
+         osd->DrawRectangle(x1 + Gap, y3, x1 + Gap + ScrollWidth - 1, y4 - 1, Theme.Color(clrChannelTimebarRest));
+@@ -510,9 +510,9 @@ void cSkinSTTNGDisplayMenu::DrawScrollbar(int Total, int Offset, int Shown, int
+      int yb = yt + Height;
+      int st = yt + h + Gap;
+      int sb = yb - h - Gap;
+-     int th = max(int((sb - st) * double(Shown) / Total + 0.5), ScrollWidth);
+-     int tt = min(int(st + (sb - st) * double(Offset) / Total + 0.5), sb - th);
+-     int tb = min(tt + th, sb);
++     int th = std::max(int((sb - st) * double(Shown) / Total + 0.5), ScrollWidth);
++     int tt = std::min(int(st + (sb - st) * double(Offset) / Total + 0.5), sb - th);
++     int tb = std::min(tt + th, sb);
+      osd->DrawRectangle(x5, st, x5 + ScrollWidth - 1, sb - 1, Theme.Color(clrMenuScrollbarTotal));
+      osd->DrawRectangle(x5, tt, x5 + ScrollWidth - 1, tb - 1, Theme.Color(clrMenuScrollbarShown));
+      osd->DrawRectangle(x5, yt, x6 - 1, yt + h - 1, frameColor);
+@@ -806,7 +806,7 @@ cSkinSTTNGDisplayReplay::cSkinSTTNGDisplayReplay(bool ModeOnly)
+   lastCurrentWidth = 0;
+   cBitmap bm(play_xpm);
+   x0 = 0;
+-  x1 = max(lineHeight * 2, bm.Width());
++  x1 = std::max(lineHeight * 2, bm.Width());
+   x2 = x1 + Roundness;
+   x3 = x2 + Gap;
+   x7 = cOsd::OsdWidth();
+@@ -817,7 +817,7 @@ cSkinSTTNGDisplayReplay::cSkinSTTNGDisplayReplay(bool ModeOnly)
+   y1 = lineHeight;
+   y2 = y1 + Roundness;
+   y3 = y2 + Gap;
+-  y4 = y3 + max(lineHeight, bm.Height());
++  y4 = y3 + std::max(lineHeight, bm.Height());
+   y5 = y4 + Gap;
+   y6 = y5 + Roundness;
+   y7 = y6 + font->Height();
+@@ -1050,7 +1050,7 @@ cSkinSTTNGDisplayTracks::cSkinSTTNGDisplayTracks(const char *Title, int NumTrack
+   currentIndex = -1;
+   int ItemsWidth = font->Width(Title);
+   for (int i = 0; i < NumTracks; i++)
+-      ItemsWidth = max(ItemsWidth, font->Width(Tracks[i]));
++      ItemsWidth = std::max(ItemsWidth, font->Width(Tracks[i]));
+   ItemsWidth += 2 * TextSpacing;
+   x0 = 0;
+   x1 = lineHeight / 2;
+diff --git a/thread.c b/thread.c
+index 2d3580b7..2c761949 100644
+--- a/thread.c
++++ b/thread.c
+@@ -72,7 +72,7 @@ cCondWait::~cCondWait()
+ void cCondWait::SleepMs(int TimeoutMs)
+ {
+   cCondWait w;
+-  w.Wait(max(TimeoutMs, 3)); // making sure the time is >2ms to avoid a possible busy wait
++  w.Wait(std::max(TimeoutMs, 3)); // making sure the time is >2ms to avoid a possible busy wait
+ }
+ 
+ bool cCondWait::Wait(int TimeoutMs)
+@@ -521,7 +521,7 @@ void cBackTrace::BackTrace(cStringList &StringList, int Level, bool Mangled)
+   void *b[BT_BUF_SIZE];
+   int n = backtrace(b, BT_BUF_SIZE);
+   if (char **s = backtrace_symbols(b, n)) {
+-     for (int i = max(Level, 0) + 1; i < n; i++) // 1 is the call to this function itself
++     for (int i = std::max(Level, 0) + 1; i < n; i++) // 1 is the call to this function itself
+          StringList.Append(strdup(Mangled ? s[i] : *Demangle(s[i])));
+      free(s);
+      }
+@@ -542,7 +542,7 @@ void cBackTrace::BackTrace(FILE *f, int Level, bool Mangled)
+ cString cBackTrace::GetCaller(int Level, bool Mangled)
+ {
+   cString Caller;
+-  Level = max(Level, 0) + 1; // 1 is the call to this function itself
++  Level = std::max(Level, 0) + 1; // 1 is the call to this function itself
+   void *b[BT_BUF_SIZE];
+   int n = backtrace(b, BT_BUF_SIZE);
+   if (char **s = backtrace_symbols(b, n)) {
+diff --git a/timers.c b/timers.c
+index 874cfad1..e31d74b0 100644
+--- a/timers.c
++++ b/timers.c
+@@ -430,7 +430,7 @@ bool cTimer::Matches(time_t t, bool Directly, int Margin) const
+      stopTime  = SetTime(t0, end);
+      }
+   else {
+-     time_t d = day ? max(day, t) : t;
++     time_t d = day ? std::max(day, t) : t;
+      for (int i = -1; i <= 7; i++) {
+          time_t t0 = IncDay(d, i);
+          if (DayMatches(t0)) {
+@@ -500,7 +500,7 @@ eTimerMatch cTimer::Matches(const cEvent *Event, int *Overlap) const
+         else if (stopTime <= Event->StartTime() || Event->EndTime() <= startTime)
+            overlap = 0;
+         else
+-           overlap = (min(stopTime, Event->EndTime()) - max(startTime, Event->StartTime())) * FULLMATCH / max(Event->Duration(), 1);
++           overlap = (std::min(stopTime, Event->EndTime()) - std::max(startTime, Event->StartTime())) * FULLMATCH / std::max(Event->Duration(), 1);
+         }
+      startTime = stopTime = 0;
+      if (Overlap)
+@@ -822,7 +822,7 @@ int cTimers::GetMaxPriority(void) const
+   int n = -1;
+   for (const cTimer *ti = First(); ti; ti = Next(ti)) {
+       if (!ti->Remote() && ti->Recording())
+-         n = max(n, ti->Priority());
++         n = std::max(n, ti->Priority());
+       }
+   return n;
+ }
+diff --git a/tools.c b/tools.c
+index 3a3a1143..e65aa75f 100644
+--- a/tools.c
++++ b/tools.c
+@@ -114,7 +114,7 @@ int WriteAllOrNothing(int fd, const uchar *Data, int Length, int TimeoutMs, int
+ char *strcpyrealloc(char *dest, const char *src)
+ {
+   if (src) {
+-     int l = max(dest ? strlen(dest) : 0, strlen(src)) + 1; // don't let the block get smaller!
++     int l = std::max(dest ? strlen(dest) : 0, strlen(src)) + 1; // don't let the block get smaller!
+      dest = (char *)realloc(dest, l);
+      if (dest)
+         strcpy(dest, src);
+@@ -995,7 +995,7 @@ const char *cCharSetConv::Convert(const char *From, char *To, size_t ToLength)
+      size_t FromLength = strlen(From);
+      char *ToPtr = To;
+      if (!ToPtr) {
+-        int NewLength = max(length, FromLength * 2); // some reserve to avoid later reallocations
++        int NewLength = std::max(length, FromLength * 2); // some reserve to avoid later reallocations
+         if (char *NewBuffer = (char *)realloc(result, NewLength)) {
+            length = NewLength;
+            result = NewBuffer;
+@@ -1159,7 +1159,7 @@ cString WeekDayName(int WeekDay)
+      // TRANSLATORS: abbreviated weekdays, beginning with monday (must all be 3 letters!)
+      const char *day = tr("MonTueWedThuFriSatSun");
+      day += Utf8SymChars(day, WeekDay * 3);
+-     strn0cpy(buffer, day, min(Utf8SymChars(day, 3) + 1, int(sizeof(buffer))));
++     strn0cpy(buffer, day, std::min(Utf8SymChars(day, 3) + 1, int(sizeof(buffer))));
+      return buffer;
+      }
+   else
+@@ -1869,13 +1869,13 @@ ssize_t cUnbufferedFile::Read(void *Data, size_t Size)
+         cachedstart = curpos;
+         cachedend = curpos;
+         }
+-     cachedstart = min(cachedstart, curpos);
++     cachedstart = std::min(cachedstart, curpos);
+ #endif
+      ssize_t bytesRead = safe_read(fd, Data, Size);
+      if (bytesRead > 0) {
+         curpos += bytesRead;
+ #if USE_FADVISE_READ
+-        cachedend = max(cachedend, curpos);
++        cachedend = std::max(cachedend, curpos);
+ 
+         // Read ahead:
+         // no jump? (allow small forward jump still inside readahead window).
+@@ -1886,7 +1886,7 @@ ssize_t cUnbufferedFile::Read(void *Data, size_t Size)
+            if (ahead - curpos < (off_t)(readahead / 2)) {
+               posix_fadvise(fd, curpos, readahead, POSIX_FADV_WILLNEED);
+               ahead = curpos + readahead;
+-              cachedend = max(cachedend, ahead);
++              cachedend = std::max(cachedend, ahead);
+               }
+            if (readahead < Size * 32) { // automagically tune readahead size.
+               readahead = Size * 32;
+@@ -1922,10 +1922,10 @@ ssize_t cUnbufferedFile::Write(const void *Data, size_t Size)
+      ssize_t bytesWritten = safe_write(fd, Data, Size);
+ #if USE_FADVISE_WRITE
+      if (bytesWritten > 0) {
+-        begin = min(begin, curpos);
++        begin = std::min(begin, curpos);
+         curpos += bytesWritten;
+         written += bytesWritten;
+-        lastpos = max(lastpos, curpos);
++        lastpos = std::max(lastpos, curpos);
+         if (written > WRITE_BUFFER) {
+            if (lastpos > begin) {
+               // Now do three things:
+@@ -1936,7 +1936,7 @@ ssize_t cUnbufferedFile::Write(const void *Data, size_t Size)
+               //    last (partial) page might be skipped, writeback will start only after
+               //    second call; the third call will still include this page and finally
+               //    drop it from cache.
+-              off_t headdrop = min(begin, off_t(WRITE_BUFFER * 2));
++              off_t headdrop = std::min(begin, off_t(WRITE_BUFFER * 2));
+               posix_fadvise(fd, begin - headdrop, lastpos - begin + headdrop, POSIX_FADV_DONTNEED);
+               }
+            begin = lastpos = curpos;
+@@ -1955,7 +1955,7 @@ ssize_t cUnbufferedFile::Write(const void *Data, size_t Size)
+               // kind of write gathering enabled), but the syncs cause (io) load..
+               // Uncomment the next line if you think you need them.
+               //fdatasync(fd);
+-              off_t headdrop = min(off_t(curpos - totwritten), off_t(totwritten * 2));
++              off_t headdrop = std::min(off_t(curpos - totwritten), off_t(totwritten * 2));
+               posix_fadvise(fd, curpos - totwritten - headdrop, totwritten + headdrop, POSIX_FADV_DONTNEED);
+               totwritten = 0;
+               }
+@@ -2316,7 +2316,7 @@ cDynamicBuffer::~cDynamicBuffer()
+ bool cDynamicBuffer::Realloc(int NewSize)
+ {
+   if (size < NewSize) {
+-     NewSize = max(NewSize, size ? size * 3 / 2 : initialSize); // increase size by at least 50%
++     NewSize = std::max(NewSize, size ? size * 3 / 2 : initialSize); // increase size by at least 50%
+      if (uchar *NewBuffer = (uchar *)realloc(buffer, NewSize)) {
+         buffer = NewBuffer;
+         size = NewSize;
+diff --git a/tools.h b/tools.h
+index 5d1559a2..d165baab 100644
+--- a/tools.h
++++ b/tools.h
+@@ -28,6 +28,8 @@
+ #include <sys/types.h>
+ #include "thread.h"
+ 
++#include <algorithm>
++
+ typedef unsigned char uchar;
+ 
+ extern int SysLogLevel;
