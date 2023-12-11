@@ -11,3 +11,4 @@
 
 armhfv6-2.6 stable armv6l-${config_os_version}
 armhfv7-2.6 stable armv7l-${config_os_version}
+arm64-2.6 stable armv64-${config_os_version}

@@ -1,0 +1,5 @@
+config_build_env=schroot -c arm64${config_os_version} -p --
+config_source_type=git
+config_source_addr=http://git.tvdr.de/vdr.git
+config_source_tag=2.6.4
+config_build_plugins=
