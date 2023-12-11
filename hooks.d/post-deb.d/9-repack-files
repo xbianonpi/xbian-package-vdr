@@ -1,0 +1,12 @@
+
+cd ..
+
+for deb in *.deb; do
+    (
+        mkdir -p repacked && cd repacked && rm -rf ./content && sh $XBIANROOT/gen.package ../$deb
+    )
+done
+
+mv repacked/*.deb .
+
+rm -rf repacked
